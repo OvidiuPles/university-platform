@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Check-In - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .success-animation {
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Student Check-In</h1>
+            <p>Mark your attendance</p>
+        </div>
+
+        <div class="content">
+            <div id="messageContainer"></div>
+
+            <div id="checkInForm">
+                <div class="form-group">
+                    <label for="studentId">Student ID:</label>
+                    <input type="text" id="studentId" placeholder="Enter your student ID (e.g., S001)" required>
+                </div>
+
+                <button class="btn" onclick="submitCheckIn()">
+                    ✓ Check In
+                </button>
+            </div>
+
+            <div id="successMessage" style="display: none; text-align: center;">
+                <div class="icon success-animation">✅</div>
+                <h2>Check-In Successful!</h2>
+                <p style="margin-top: 15px; color: #666;">Your attendance has been recorded.</p>
+                <p style="margin-top: 30px;">
+                    <a href="/student/history" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                        View Attendance History →
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionToken = null;
+
+        // Get token from URL
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionToken = urlParams.get('token');
+
+            const requestData = {
+                sessionToken: sessionToken
+            };
+
+            fetch('/api/student/validate/checkin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    console.error('Error:', data.message);
+                    showMessage(data.message, 'error');
+                    document.getElementById('checkInForm').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+
+            if (!sessionToken) {
+                showMessage('Invalid or missing session token', 'error');
+                document.getElementById('checkInForm').style.display = 'none';
+            } else {
+                showMessage('Session found! Please enter your Student ID to check in.', 'info');
+            }
+        };
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="message ${type}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showLoader() {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="loader"></div>
+            `;
+        }
+
+        function submitCheckIn() {
+            const studentId = document.getElementById('studentId').value.trim();
+
+            if (!studentId) {
+                showMessage('Please enter your Student ID', 'error');
+                return;
+            }
+
+            if (!sessionToken) {
+                showMessage('Invalid session token', 'error');
+                return;
+            }
+
+            showLoader();
+
+            const requestData = {
+                sessionToken: sessionToken,
+                studentId: studentId
+            };
+
+            fetch('/api/student/checkin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('messageContainer').innerHTML = '';
+                    document.getElementById('checkInForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                } else if (data.status === 'multiple-attempts') {
+                    showMessage(data.message, 'info');
+                } else {
+                    showMessage(data.message || 'Check-in failed. Please try again.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+            });
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('studentId')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitCheckIn();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

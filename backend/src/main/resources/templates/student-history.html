@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance History - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+        }
+
+        .attendance-record {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .course-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .check-in-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .record-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Attendance History</h1>
+            <p>View your attendance records</p>
+        </div>
+
+        <div class="content">
+            <div class="search-box">
+                <div class="form-group">
+                    <input type="text" id="studentIdInput" placeholder="Enter your Student ID (e.g., S001)">
+                    <button class="btn" onclick="loadAttendanceHistory()">🔍 View History</button>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div id="statsContainer" style="display: none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSessions">0</div>
+                        <div class="stat-label">Total Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="attendanceRate">0%</div>
+                        <div class="stat-label">Attendance Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="historyContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        function loadAttendanceHistory() {
+            const studentId = document.getElementById('studentIdInput').value.trim();
+
+            if (!studentId) {
+                showAlert('Please enter your Student ID', 'danger');
+                return;
+            }
+
+            fetch(`/api/student/attendance/history?studentId=${studentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Student not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAttendanceHistory(data.history, data.sessionsCount);
+                })
+                .catch(error => {
+                    showAlert('Error loading attendance history. Please check your Student ID.', 'danger');
+                    console.error('Error:', error);
+                    document.getElementById('historyContainer').innerHTML = '';
+                    document.getElementById('statsContainer').style.display = 'none';
+                });
+        }
+
+        function displayAttendanceHistory(attendanceList, sessionsCount) {
+            const historyContainer = document.getElementById('historyContainer');
+            const statsContainer = document.getElementById('statsContainer');
+
+            if (attendanceList.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No Attendance Records</h3>
+                        <p>You haven't checked in to any sessions yet.</p>
+                    </div>
+                `;
+                statsContainer.style.display = 'none';
+                document.getElementById('alertContainer').innerHTML = '';
+                return;
+            }
+
+            // Display stats
+            statsContainer.style.display = 'block';
+            document.getElementById('totalSessions').textContent = attendanceList.length;
+            const attendanceRate = sessionsCount > 0 ? (attendanceList.length / sessionsCount) * 100 : 0;
+            document.getElementById('attendanceRate').textContent = attendanceRate.toFixed(0) + "%";
+
+            // Display attendance records
+            let html = '<h2 style="margin-bottom: 20px;">Your Attendance Records</h2>';
+            
+            attendanceList.forEach(record => {
+                const checkInDate = new Date(record.checkInTime);
+                html += `
+                    <div class="attendance-record">
+                        <div class="record-header">
+                            <div class="course-name">
+                                ${record.session.course.courseName}
+                            </div>
+                            <div class="check-in-time">
+                                ${checkInDate.toLocaleString()}
+                            </div>
+                        </div>
+                        <div class="record-details">
+                            Course Code: ${record.session.course.courseCode} | 
+                            Professor: ${record.session.course.professorName}
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyContainer.innerHTML = html;
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+
+        // Allow Enter key to search
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('studentIdInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loadAttendanceHistory();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

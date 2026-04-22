@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session History - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header-nav {
+            margin-top: 15px;
+        }
+
+        .header-nav a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+
+        .header-nav a:hover {
+            color: white;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .session-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .session-controls h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-row input::placeholder {
+            color: #aaa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .session-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+        }
+
+        .session-info h3 {
+            margin-bottom: 14px;
+            color: #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .badge-active {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-ended {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.4em;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .student-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .student-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .student-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .student-meta {
+            color: #666;
+            font-size: 0.88em;
+            margin-top: 2px;
+        }
+
+        .student-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .status-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .check-in-time {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .list-header h3 {
+            color: #333;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            color: #333;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto 12px;
+        }
+
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #666;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Session History</h1>
+            <p>View attendance for any past or active session</p>
+            <div class="header-nav">
+                <a href="/professor">← Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- token input -->
+            <div class="session-controls">
+                <h2>Look Up a Session</h2>
+                <div class="input-row">
+                    <input type="text"
+                           id="tokenInput"
+                           placeholder="Paste session token here …"
+                           autocomplete="off"
+                           spellcheck="false">
+                    <button class="btn btn-primary" onclick="lookupSession()">🔍 Look Up</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">✕ Clear</button>
+                </div>
+            </div>
+
+            <!-- alerts -->
+            <div id="alertContainer"></div>
+
+            <!-- loader (shown while fetching) -->
+            <div id="loaderContainer"></div>
+
+            <!-- results (hidden until a valid token responds) -->
+            <div id="resultSection" class="result-section">
+
+                <!-- session metadata -->
+                <div class="session-info">
+                    <h3>Session Details</h3>
+                    <div class="info-row">
+                        <span class="info-label">Course</span>
+                        <span class="info-value" id="infoCourse">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Professor</span>
+                        <span class="info-value" id="infoProfessor">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Session Started</span>
+                        <span class="info-value" id="infoStart">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Session Expired At</span>
+                        <span class="info-value" id="infoExpiration">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" id="infoStatus">-</span>
+                    </div>
+                </div>
+
+                <!-- stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statTotal">0</div>
+                        <div class="stat-label">Students Present</div>
+                    </div>
+                </div>
+
+                <!-- student list -->
+                <div class="list-header">
+                    <h3>Attendance List</h3>
+                    <select class="sort-select" id="sortSelect" onchange="sortList()">
+                        <option value="name-asc">Name (A → Z)</option>
+                        <option value="name-desc">Name (Z → A)</option>
+                        <option value="time-asc">Check-in (earliest first)</option>
+                        <option value="time-desc">Check-in (latest first)</option>
+                    </select>
+                </div>
+                <div id="studentList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentData = null;   // last successful API payload
+
+    function showAlert(message, type) {
+        document.getElementById('alertContainer').innerHTML =
+            `<div class="alert alert-${type}">${message}</div>`;
+    }
+
+    function clearAlert() {
+        document.getElementById('alertContainer').innerHTML = '';
+    }
+
+    function showLoader() {
+        document.getElementById('loaderContainer').innerHTML =
+            '<div class="loader"></div><p class="loading-text">Loading …</p>';
+    }
+
+    function hideLoader() {
+        document.getElementById('loaderContainer').innerHTML = '';
+    }
+
+    function showResults() {
+        document.getElementById('resultSection').classList.add('visible');
+    }
+
+    function hideResults() {
+        document.getElementById('resultSection').classList.remove('visible');
+        currentData = null;
+    }
+
+    function lookupSession() {
+        const token = document.getElementById('tokenInput').value.trim();
+
+        if (!token) {
+            showAlert('Please paste a session token first.', 'danger');
+            return;
+        }
+
+        clearAlert();
+        hideResults();
+        showLoader();
+
+        fetch(`/api/professor/session/history?token=${encodeURIComponent(token)}`)
+            .then(res => res.json())
+            .then(data => {
+                hideLoader();
+
+                if (data.status === 'error') {
+                    showAlert(data.message, 'danger');
+                    return;
+                }
+
+                currentData = data;
+                renderSession(data);
+                showResults();
+            })
+            .catch(() => {
+                hideLoader();
+                showAlert('Connection error. Please check your network and try again.', 'danger');
+            });
+    }
+
+    function renderSession(data) {
+        document.getElementById('infoCourse').textContent =
+            `${data.courseCode} — ${data.courseName}`;
+        document.getElementById('infoProfessor').textContent =
+            data.professorName;
+        document.getElementById('infoStart').textContent =
+            formatDateTime(data.startTime);
+        document.getElementById('infoExpiration').textContent =
+            formatDateTime(data.expirationTime);
+
+        document.getElementById('infoStatus').innerHTML = data.isActive
+            ? '<span class="badge-active">Active</span>'
+            : '<span class="badge-ended">Ended</span>';
+
+        document.getElementById('statTotal').textContent = data.totalAttendance;
+
+        document.getElementById('sortSelect').value = 'name-asc';
+        renderStudentList(data.students, 'name-asc');
+    }
+
+    function renderStudentList(students, sortKey) {
+        const container = document.getElementById('studentList');
+
+        if (!students || students.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <h3>No students checked in</h3>
+                    <p>Nobody attended this session.</p>
+                </div>`;
+            return;
+        }
+
+        const sorted = [...students].sort((a, b) => {
+            switch (sortKey) {
+                case 'name-asc':  return a.name.localeCompare(b.name);
+                case 'name-desc': return b.name.localeCompare(a.name);
+                case 'time-asc':  return new Date(a.checkInTime) - new Date(b.checkInTime);
+                case 'time-desc': return new Date(b.checkInTime) - new Date(a.checkInTime);
+                default:          return 0;
+            }
+        });
+
+        container.innerHTML = sorted.map(s => `
+            <div class="student-item">
+                <div class="student-left">
+                    <div class="student-avatar">${initials(s.name)}</div>
+                    <div>
+                        <div class="student-name">${s.name}</div>
+                        <div class="student-meta">ID: ${s.studentId} &nbsp;|&nbsp; ${s.email}</div>
+                    </div>
+                </div>
+                <div class="student-right">
+                    <div class="status-badge">✓ Present</div>
+                    <div class="check-in-time">Checked in at ${formatDateTime(s.checkInTime)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function sortList() {
+        if (!currentData) return;
+        renderStudentList(currentData.students, document.getElementById('sortSelect').value);
+    }
+
+    function clearAll() {
+        document.getElementById('tokenInput').value = '';
+        clearAlert();
+        hideLoader();
+        hideResults();
+    }
+
+    function formatDateTime(iso) {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleString();
+    }
+
+    function calcDuration(startIso, endIso) {
+        if (!startIso || !endIso) return '—';
+        const diffMs  = new Date(endIso) - new Date(startIso);
+        const mins    = Math.round(diffMs / 60000);
+        return mins >= 60
+            ? `${Math.floor(mins / 60)}h ${mins % 60}m`
+            : `${mins}m`;
+    }
+
+    function initials(name) {
+        return name.split(' ')
+            .map(w => w[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('tokenInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') lookupSession();
+        });
+    });
+    </script>
+</body>
+</html>
