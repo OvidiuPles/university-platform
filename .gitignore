@@ -26,3 +26,9 @@ replay_pid*
 # IDE
 .idea/
 .vscode
+
+# frontend
+node_modules
+dist
+.env
+.env.local
