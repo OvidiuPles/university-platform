@@ -51,7 +51,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      APP_BASE_URL: http://localhost:8090
+      APP_BASE_URL: http://localhost:3000  # used for QR generation
     ports:
       - "8090:8080"
     depends_on:
