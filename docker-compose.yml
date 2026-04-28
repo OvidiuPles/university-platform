@@ -63,6 +63,19 @@ services:
       - attendance-network
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: attendance-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
+    networks:
+      - attendance-network
+    restart: unless-stopped
+
 networks:
   attendance-network:
     driver: bridge
