@@ -78,7 +78,7 @@ export default function ProfessorDashboard() {
           setAttendees((prev) => [
             {
               name: update.studentName,
-              time: new Date(update.checkInTime).toLocaleString(),
+              time: new Date(update.checkInTime).toLocaleTimeString('ro-RO', { timeZone: 'Europe/Bucharest' }),
             },
             ...prev,
           ]);
