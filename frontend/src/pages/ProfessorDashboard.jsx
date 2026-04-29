@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client';
 
 export default function ProfessorDashboard() {
   const [courseId, setCourseId] = useState('');
+  const [courses, setCourses] = useState([]);
   const [expirationMinutes, setExpirationMinutes] = useState(10);
   const [sessionData, setSessionData] = useState(null);
   const [attendees, setAttendees] = useState([]);
@@ -17,6 +18,19 @@ export default function ProfessorDashboard() {
     const t = setTimeout(() => setAlert(null), 5000);
     return () => clearTimeout(t);
   }, [alert]);
+
+  useEffect(() => {
+    fetch('/api/professor/courses')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load courses');
+        return res.json();
+      })
+      .then(setCourses)
+      .catch((e) => {
+        console.error(e);
+        setAlert({ message: 'Error loading courses', type: 'danger' });
+      });
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -117,9 +131,11 @@ export default function ProfessorDashboard() {
               onChange={(e) => setCourseId(e.target.value)}
             >
               <option value="">-- Select a Course --</option>
-              <option value="1">CS101 - Introduction to Computer Science</option>
-              <option value="2">CS201 - Data Structures and Algorithms</option>
-              <option value="3">CS301 - Database Systems</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.courseCode} - {c.courseName}
+                </option>
+              ))}
             </select>
           </div>
           <div className="form-group">

@@ -2,6 +2,8 @@ package com.attendance.controller;
 
 import com.attendance.dto.SessionResponse;
 import com.attendance.model.Attendance;
+import com.attendance.model.Course;
+import com.attendance.repository.CourseRepository;
 import com.attendance.service.AttendanceService;
 import com.attendance.service.SessionService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,12 @@ public class ProfessorController {
     
     private final SessionService sessionService;
     private final AttendanceService attendanceService;
+    private final CourseRepository courseRepository;
+
+    @GetMapping("/courses")
+    public ResponseEntity<List<Course>> getCourses() {
+        return ResponseEntity.ok(courseRepository.findAll());
+    }
 
     @PostMapping("/session/start")
     public ResponseEntity<SessionResponse> startSession(
