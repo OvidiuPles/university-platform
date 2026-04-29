@@ -76,7 +76,10 @@ export default function ProfessorDashboard() {
           const update = JSON.parse(msg.body);
           setCount(update.totalCount);
           setAttendees((prev) => [
-            { name: update.studentName, time: 'Just now' },
+            {
+              name: update.studentName,
+              time: new Date(update.checkInTime).toLocaleString(),
+            },
             ...prev,
           ]);
         });
