@@ -6,7 +6,7 @@ import SockJS from 'sockjs-client';
 export default function ProfessorDashboard() {
   const [courseId, setCourseId] = useState('');
   const [courses, setCourses] = useState([]);
-  const [expirationMinutes, setExpirationMinutes] = useState(10);
+  const [expirationMinutes, setExpirationMinutes] = useState('');
   const [sessionData, setSessionData] = useState(null);
   const [attendees, setAttendees] = useState([]);
   const [count, setCount] = useState(0);
@@ -30,6 +30,14 @@ export default function ProfessorDashboard() {
         console.error(e);
         setAlert({ message: 'Error loading courses', type: 'danger' });
       });
+
+    fetch('/api/professor/session/config')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load session config');
+        return res.json();
+      })
+      .then((cfg) => setExpirationMinutes(cfg.defaultExpirationMinutes))
+      .catch((e) => console.error(e));
   }, []);
 
   useEffect(() => {
