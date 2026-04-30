@@ -21,6 +21,23 @@ services:
       timeout: 5s
       retries: 5
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: attendance-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - attendance-network
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: attendance-rabbitmq
@@ -51,7 +68,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      APP_BASE_URL: http://localhost:8090
+      APP_BASE_URL: http://localhost:3000  # used for QR generation
     ports:
       - "8090:8080"
     depends_on:
@@ -63,10 +80,25 @@ services:
       - attendance-network
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: attendance-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
+    networks:
+      - attendance-network
+    restart: unless-stopped
+
 networks:
   attendance-network:
     driver: bridge
 
 volumes:
   postgres-data:
+    driver: local
+  pgadmin-data:
     driver: local

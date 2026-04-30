@@ -82,7 +82,7 @@ public class AttendanceService {
             attendance.setSession(session);
             attendance.setStudent(student);
             attendance.setCheckInTime(LocalDateTime.now());
-            
+
             attendanceRepository.save(attendance);
 
             long totalCount = attendanceRepository.countBySessionId(session.getId());
@@ -91,7 +91,8 @@ public class AttendanceService {
                 session.getId(),
                 student.getName(),
                 totalCount,
-                student.getName() + " checked in successfully"
+                student.getName() + " checked in successfully",
+                attendance.getCheckInTime()
             );
             
             messagingTemplate.convertAndSend("/topic/attendance/" + session.getId(), update);

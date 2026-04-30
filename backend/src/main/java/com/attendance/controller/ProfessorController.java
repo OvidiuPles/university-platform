@@ -2,9 +2,12 @@ package com.attendance.controller;
 
 import com.attendance.dto.SessionResponse;
 import com.attendance.model.Attendance;
+import com.attendance.model.Course;
+import com.attendance.repository.CourseRepository;
 import com.attendance.service.AttendanceService;
 import com.attendance.service.SessionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,22 @@ public class ProfessorController {
     
     private final SessionService sessionService;
     private final AttendanceService attendanceService;
+    private final CourseRepository courseRepository;
+
+    @Value("${app.qr.default-expiration-minutes:10}")
+    private int defaultExpirationMinutes;
+
+    @GetMapping("/courses")
+    public ResponseEntity<List<Course>> getCourses() {
+        return ResponseEntity.ok(courseRepository.findAll());
+    }
+
+    @GetMapping("/session/config")
+    public ResponseEntity<Map<String, Object>> getSessionConfig() {
+        return ResponseEntity.ok(Map.of(
+            "defaultExpirationMinutes", defaultExpirationMinutes
+        ));
+    }
 
     @PostMapping("/session/start")
     public ResponseEntity<SessionResponse> startSession(

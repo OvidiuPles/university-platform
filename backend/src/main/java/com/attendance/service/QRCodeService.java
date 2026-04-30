@@ -15,7 +15,7 @@ import java.util.Base64;
 @Service
 public class QRCodeService {
     
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url:http://localhost:3000}")
     private String baseUrl;
     
     private static final int QR_CODE_WIDTH = 300;
