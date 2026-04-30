@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { FaCheckCircle } from 'react-icons/fa';
 
 export default function StudentCheckin() {
   const [searchParams] = useSearchParams();
@@ -129,7 +130,9 @@ export default function StudentCheckin() {
 
         {success && (
           <div style={{ textAlign: 'center' }}>
-            <div className="icon success-animation">✅</div>
+            <div className="icon success-animation">
+              <FaCheckCircle size={64} color="#28a745" />
+            </div>
             <h2>Check-In Successful!</h2>
             <p style={{ marginTop: 15, color: '#666' }}>
               Your attendance has been recorded.
