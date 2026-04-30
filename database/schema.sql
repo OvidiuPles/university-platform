@@ -24,9 +24,6 @@ CREATE TABLE sessions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_session_token ON sessions(session_token);
-CREATE INDEX idx_expiration ON sessions(expiration_time);
-
 CREATE TABLE attendance (
     id BIGSERIAL PRIMARY KEY,
     session_id BIGINT NOT NULL REFERENCES sessions(id),
@@ -34,8 +31,6 @@ CREATE TABLE attendance (
     check_in_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(session_id, student_id)
 );
-
-CREATE INDEX idx_session_student ON attendance(session_id, student_id);
 
 INSERT INTO students (student_id, name, email) VALUES
 ('S001', 'Alice Johnson', 'alice@university.edu'),

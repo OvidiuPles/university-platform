@@ -41,7 +41,7 @@ export default function StudentHistory() {
   return (
     <div className="container narrow">
       <div className="header compact">
-        <h1>📊 Attendance History</h1>
+        <h1>Attendance History</h1>
         <p>View your attendance records</p>
       </div>
 
@@ -58,7 +58,7 @@ export default function StudentHistory() {
               }}
             />
             <button className="btn btn-primary" onClick={loadAttendanceHistory}>
-              🔍 View History
+              View History
             </button>
           </div>
         </div>
@@ -82,7 +82,6 @@ export default function StudentHistory() {
 
         {history !== null && history.length === 0 && (
           <div className="empty-state">
-            <div className="empty-state-icon">📭</div>
             <h3>No Attendance Records</h3>
             <p>You haven't checked in to any sessions yet.</p>
           </div>

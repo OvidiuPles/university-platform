@@ -14,7 +14,7 @@ public class RabbitMQConfig {
     
     @Bean
     public Queue attendanceQueue() {
-        return new Queue(ATTENDANCE_QUEUE, true); // durable queue
+        return new Queue(ATTENDANCE_QUEUE, true);
     }
     
     @Bean

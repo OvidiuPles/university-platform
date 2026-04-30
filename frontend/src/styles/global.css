@@ -11,12 +11,6 @@ body {
   padding: 20px;
 }
 
-body.center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -505,11 +499,6 @@ input:focus {
   text-align: center;
   padding: 60px 20px;
   color: #999;
-}
-
-.empty-state-icon {
-  font-size: 4em;
-  margin-bottom: 20px;
 }
 
 .empty-state h3 {

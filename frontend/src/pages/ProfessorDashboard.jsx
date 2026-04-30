@@ -122,11 +122,11 @@ export default function ProfessorDashboard() {
   return (
     <div className="container">
       <div className="header">
-        <h1>📚 Professor Dashboard</h1>
+        <h1>Professor Dashboard</h1>
         <p>Real-Time Attendance Management System</p>
         <div style={{ marginTop: 14 }}>
           <Link to="/professor/history" className="header-link">
-            📊 View Session History
+            View Session History
           </Link>
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function ProfessorDashboard() {
             />
           </div>
           <button className="btn btn-primary" onClick={startSession}>
-            🚀 Start Session
+            Start Session
           </button>
         </div>
 
@@ -202,7 +202,7 @@ export default function ProfessorDashboard() {
             <p>Students Checked In</p>
 
             <button className="btn btn-danger" onClick={endSession}>
-              ⏹️ End Session
+              End Session
             </button>
 
             <div className="attendance-list">
@@ -214,7 +214,7 @@ export default function ProfessorDashboard() {
                       <div className="student-name">{a.name}</div>
                       <div className="check-in-time">{a.time}</div>
                     </div>
-                    <div className="status-badge">✓ Present</div>
+                    <div className="status-badge">Present</div>
                   </div>
                 ))}
               </div>

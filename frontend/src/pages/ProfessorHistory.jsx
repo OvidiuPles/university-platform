@@ -11,7 +11,7 @@ function initials(name) {
 }
 
 function formatDateTime(iso) {
-  if (!iso) return '—';
+  if (!iso) return '-';
   return new Date(iso).toLocaleString();
 }
 
@@ -83,11 +83,11 @@ export default function ProfessorHistory() {
   return (
     <div className="container">
       <div className="header">
-        <h1>📊 Session History</h1>
+        <h1>Session History</h1>
         <p>View attendance for any past or active session</p>
         <div style={{ marginTop: 15 }}>
           <Link to="/professor" className="header-link">
-            ← Back to Dashboard
+            Back to Dashboard
           </Link>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function ProfessorHistory() {
           <div className="input-row">
             <input
               type="text"
-              placeholder="Paste session token here …"
+              placeholder="Paste session token here..."
               autoComplete="off"
               spellCheck={false}
               value={token}
@@ -108,10 +108,10 @@ export default function ProfessorHistory() {
               }}
             />
             <button className="btn btn-primary" onClick={lookupSession}>
-              🔍 Look Up
+              Look Up
             </button>
             <button className="btn btn-secondary" onClick={clearAll}>
-              ✕ Clear
+              Clear
             </button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function ProfessorHistory() {
         {loading && (
           <div>
             <div className="loader"></div>
-            <p className="loading-text">Loading …</p>
+            <p className="loading-text">Loading...</p>
           </div>
         )}
 
@@ -134,7 +134,7 @@ export default function ProfessorHistory() {
               <div className="info-row">
                 <span className="info-label">Course</span>
                 <span className="info-value">
-                  {data.courseCode} — {data.courseName}
+                  {data.courseCode} - {data.courseName}
                 </span>
               </div>
               <div className="info-row">
@@ -177,8 +177,8 @@ export default function ProfessorHistory() {
                 value={sortKey}
                 onChange={(e) => setSortKey(e.target.value)}
               >
-                <option value="name-asc">Name (A → Z)</option>
-                <option value="name-desc">Name (Z → A)</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
                 <option value="time-asc">Check-in (earliest first)</option>
                 <option value="time-desc">Check-in (latest first)</option>
               </select>
@@ -187,7 +187,6 @@ export default function ProfessorHistory() {
             <div>
               {sortedStudents.length === 0 ? (
                 <div className="empty-state">
-                  <div className="empty-state-icon">👥</div>
                   <h3>No students checked in</h3>
                   <p>Nobody attended this session.</p>
                 </div>
@@ -204,7 +203,7 @@ export default function ProfessorHistory() {
                       </div>
                     </div>
                     <div className="student-right">
-                      <div className="status-badge">✓ Present</div>
+                      <div className="status-badge">Present</div>
                       <div className="check-in-time" style={{ marginTop: 4 }}>
                         Checked in at {formatDateTime(s.checkInTime)}
                       </div>

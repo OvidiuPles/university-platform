@@ -90,7 +90,7 @@ export default function StudentCheckin() {
   return (
     <div className="container compact">
       <div className="header tall compact">
-        <h1>📱 Student Check-In</h1>
+        <h1>Student Check-In</h1>
         <p>Mark your attendance</p>
       </div>
 
@@ -122,7 +122,7 @@ export default function StudentCheckin() {
             </div>
 
             <button className="btn full" onClick={submitCheckIn}>
-              ✓ Check In
+              Check In
             </button>
           </div>
         )}
@@ -136,7 +136,7 @@ export default function StudentCheckin() {
             </p>
             <p style={{ marginTop: 30 }}>
               <Link to="/student/history" className="text-link">
-                View Attendance History →
+                View Attendance History
               </Link>
             </p>
           </div>
