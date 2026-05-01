@@ -32,6 +32,20 @@ CREATE TABLE attendance (
     UNIQUE(session_id, student_id)
 );
 
+CREATE TABLE grades (
+    id BIGSERIAL PRIMARY KEY,
+    student_id BIGINT NOT NULL REFERENCES students(id),
+    course_id BIGINT NOT NULL REFERENCES courses(id),
+    grade_value NUMERIC(5,2) NOT NULL,
+    grade_type VARCHAR(50) NOT NULL,
+    description VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_grades_student ON grades(student_id);
+CREATE INDEX idx_grades_course ON grades(course_id);
+
 INSERT INTO students (student_id, name, email) VALUES
 ('S001', 'Alice Johnson', 'alice@university.edu'),
 ('S002', 'Bob Smith', 'bob@university.edu'),
