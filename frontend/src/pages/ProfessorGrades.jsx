@@ -30,7 +30,6 @@ export default function ProfessorGrades() {
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState('');
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(null);
   const [search, setSearch] = useState('');
   const [drafts, setDrafts] = useState({});
@@ -58,7 +57,6 @@ export default function ProfessorGrades() {
   }, [courseId]);
 
   const loadCourseGrades = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/professor/grades?courseId=${id}`);
       const data = await res.json();
@@ -70,8 +68,6 @@ export default function ProfessorGrades() {
       }
     } catch {
       setAlert({ message: 'Connection error while loading grades', type: 'danger' });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -199,14 +195,7 @@ export default function ProfessorGrades() {
 
           {alert && <div className={`alert alert-${alert.type}`}>{alert.message}</div>}
 
-          {loading && (
-            <div>
-              <div className="loader"></div>
-              <p className="loading-text">Loading grades...</p>
-            </div>
-          )}
-
-          {!loading && courseId && students.length > 0 && (
+          {courseId && students.length > 0 && (
             <>
               {overallStats && (
                 <div className="stats-row">
@@ -339,7 +328,7 @@ export default function ProfessorGrades() {
             </>
           )}
 
-          {!loading && courseId && students.length === 0 && (
+          {courseId && students.length === 0 && (
             <div className="empty-state">
               <h3>No students found</h3>
               <p>The system has no students enrolled.</p>
