@@ -8,7 +8,6 @@ export default function NavBar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <div className="navbar-brand">
-          <span className="brand-mark">UP</span>
           <span className="brand-text">University Platform</span>
         </div>
 

@@ -576,20 +576,6 @@ a.text-link {
   gap: 12px;
 }
 
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.95em;
-  letter-spacing: 0.5px;
-}
-
 .brand-text {
   font-weight: 700;
   color: #333;
