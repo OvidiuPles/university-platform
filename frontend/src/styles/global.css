@@ -54,17 +54,6 @@ body {
   opacity: 0.9;
 }
 
-.header-link {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  font-size: 0.95em;
-  transition: color 0.2s;
-}
-
-.header-link:hover {
-  color: white;
-}
-
 .content {
   padding: 30px;
 }
@@ -650,19 +639,10 @@ a.text-link {
   box-shadow: 0 3px 10px rgba(102, 126, 234, 0.35);
 }
 
-.nav-divider {
-  width: 1px;
-  height: 24px;
-  background: #e0e0e0;
-}
-
 @media (max-width: 700px) {
   .navbar-links {
     width: 100%;
     justify-content: flex-start;
-  }
-  .nav-divider {
-    display: none;
   }
 }
 
