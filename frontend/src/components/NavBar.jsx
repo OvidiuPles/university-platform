@@ -8,7 +8,7 @@ export default function NavBar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <div className="navbar-brand">
-          <span className="brand-text">University Platform</span>
+          <span className="brand-text">{import.meta.env.VITE_UNIVERSITY_NAME || 'University Platform'}</span>
         </div>
 
         <div className="navbar-links">

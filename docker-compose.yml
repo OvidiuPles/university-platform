@@ -84,6 +84,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_UNIVERSITY_NAME: "University Platform"
     container_name: attendance-frontend
     ports:
       - "3000:80"

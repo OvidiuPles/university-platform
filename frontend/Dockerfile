@@ -6,6 +6,10 @@ COPY package.json ./
 RUN npm install
 
 COPY . .
+
+ARG VITE_UNIVERSITY_NAME
+ENV VITE_UNIVERSITY_NAME=$VITE_UNIVERSITY_NAME
+
 RUN npm run build
 
 FROM nginx:1.27-alpine
