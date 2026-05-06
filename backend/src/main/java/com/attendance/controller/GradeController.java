@@ -34,18 +34,6 @@ public class GradeController {
         }
     }
 
-    @PutMapping("/professor/grades/{gradeId}")
-    public ResponseEntity<?> updateGrade(@PathVariable Long gradeId,
-                                         @RequestBody GradeRequest request) {
-        try {
-            Grade grade = gradeService.updateGrade(gradeId, request);
-            return ResponseEntity.ok(toGradeRow(grade));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", e.getMessage()));
-        }
-    }
-
     @DeleteMapping("/professor/grades/{gradeId}")
     public ResponseEntity<Map<String, String>> deleteGrade(@PathVariable Long gradeId) {
         try {
@@ -160,7 +148,6 @@ public class GradeController {
         row.put("gradeType", g.getGradeType());
         row.put("description", g.getDescription());
         row.put("createdAt", g.getCreatedAt());
-        row.put("updatedAt", g.getUpdatedAt());
         return row;
     }
 

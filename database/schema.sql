@@ -39,8 +39,7 @@ CREATE TABLE grades (
     grade_value NUMERIC(5,2) NOT NULL,
     grade_type VARCHAR(50) NOT NULL,
     description VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_grades_student ON grades(student_id);

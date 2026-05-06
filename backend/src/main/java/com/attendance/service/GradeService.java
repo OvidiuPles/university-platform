@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -50,26 +49,6 @@ public class GradeService {
         log.info("Created grade {} for student {} in course {}",
                 saved.getGradeValue(), student.getStudentId(), course.getCourseCode());
         return saved;
-    }
-
-    @Transactional
-    public Grade updateGrade(Long gradeId, GradeRequest request) {
-        Grade grade = gradeRepository.findById(gradeId)
-                .orElseThrow(() -> new RuntimeException("Grade not found"));
-
-        if (request.getGradeValue() != null) {
-            validateGradeValue(request.getGradeValue());
-            grade.setGradeValue(request.getGradeValue());
-        }
-        if (request.getGradeType() != null) {
-            validateGradeType(request.getGradeType());
-            grade.setGradeType(request.getGradeType().trim());
-        }
-        if (request.getDescription() != null) {
-            grade.setDescription(request.getDescription().trim());
-        }
-        grade.setUpdatedAt(LocalDateTime.now());
-        return gradeRepository.save(grade);
     }
 
     @Transactional
