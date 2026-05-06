@@ -1,8 +1,13 @@
 package com.attendance.controller;
 
 import com.attendance.dto.SessionResponse;
+import com.attendance.model.Attendance;
 import com.attendance.model.Course;
+import com.attendance.model.Session;
+import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.CourseRepository;
+import com.attendance.repository.SessionRepository;
+import com.attendance.repository.StudentRepository;
 import com.attendance.service.AttendanceService;
 import com.attendance.service.SessionService;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/professor")
@@ -22,6 +33,9 @@ public class ProfessorController {
     private final SessionService sessionService;
     private final AttendanceService attendanceService;
     private final CourseRepository courseRepository;
+    private final SessionRepository sessionRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final StudentRepository studentRepository;
 
     @Value("${app.qr.default-expiration-minutes:10}")
     private int defaultExpirationMinutes;
@@ -88,6 +102,56 @@ public class ProfessorController {
             }
             response.put("students", students);
 
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/attendance-rate")
+    public ResponseEntity<?> getCourseAttendanceRate(@RequestParam Long courseId) {
+        try {
+            if (!courseRepository.existsById(courseId)) {
+                throw new RuntimeException("Course not found");
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            List<Session> completedSessions = sessionRepository.findByCourseId(courseId).stream()
+                    .filter(s -> Boolean.FALSE.equals(s.getIsActive()) || s.getExpirationTime().isBefore(now))
+                    .toList();
+            int totalSessions = completedSessions.size();
+
+            Map<Long, Set<Long>> attendedSessionsByStudent = new java.util.HashMap<>();
+            for (Session session : completedSessions) {
+                List<Attendance> attendanceList = attendanceRepository.findBySessionId(session.getId());
+                for (Attendance a : attendanceList) {
+                    attendedSessionsByStudent
+                            .computeIfAbsent(a.getStudent().getId(), k -> new HashSet<>())
+                            .add(session.getId());
+                }
+            }
+
+            List<Map<String, Object>> students = studentRepository.findAll().stream()
+                    .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                    .map(student -> {
+                        int attended = attendedSessionsByStudent.getOrDefault(student.getId(), Set.of()).size();
+                        BigDecimal rate = totalSessions == 0
+                                ? null
+                                : BigDecimal.valueOf(attended)
+                                    .multiply(BigDecimal.valueOf(100))
+                                    .divide(BigDecimal.valueOf(totalSessions), 2, RoundingMode.HALF_UP);
+
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("studentId", student.getStudentId());
+                        row.put("rate", rate);
+                        return row;
+                    })
+                    .toList();
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("courseId", courseId);
+            response.put("students", students);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest()

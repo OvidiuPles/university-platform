@@ -680,6 +680,14 @@ a.text-link {
   line-height: 1;
 }
 
+.pill-stack {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .grade-pill.large {
   padding: 10px 18px;
   min-width: 80px;

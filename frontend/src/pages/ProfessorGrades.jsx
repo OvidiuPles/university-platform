@@ -21,6 +21,15 @@ function gradeTone(value) {
   return 'tone-fail';
 }
 
+function attendanceTone(rate) {
+  if (rate == null) return 'tone-neutral';
+  const v = Number(rate);
+  if (v >= 70) return 'tone-excellent';
+  if (v >= 50) return 'tone-good';
+  if (v >= 30) return 'tone-pass';
+  return 'tone-fail';
+}
+
 function formatDate(iso) {
   if (!iso) return '-';
   return new Date(iso).toLocaleString();
@@ -58,14 +67,32 @@ export default function ProfessorGrades() {
 
   const loadCourseGrades = async (id) => {
     try {
-      const res = await fetch(`/api/professor/grades?courseId=${id}`);
-      const data = await res.json();
-      if (data.status === 'error') {
-        setAlert({ message: data.message, type: 'danger' });
+      const [gradesRes, rateRes] = await Promise.all([
+        fetch(`/api/professor/grades?courseId=${id}`),
+        fetch(`/api/professor/attendance-rate?courseId=${id}`),
+      ]);
+      const gradesData = await gradesRes.json();
+      if (gradesData.status === 'error') {
+        setAlert({ message: gradesData.message, type: 'danger' });
         setStudents([]);
-      } else {
-        setStudents(data.students || []);
+        return;
       }
+
+      let rateByStudent = {};
+      if (rateRes.ok) {
+        const rateData = await rateRes.json();
+        if (Array.isArray(rateData.students)) {
+          rateByStudent = Object.fromEntries(
+            rateData.students.map((r) => [r.studentId, r.rate])
+          );
+        }
+      }
+
+      const studenData = (gradesData.students || []).map((s) => ({
+        ...s,
+        attendanceRate: rateByStudent[s.studentId] ?? null,
+      }));
+      setStudents(studenData);
     } catch {
       setAlert({ message: 'Connection error while loading grades', type: 'danger' });
     }
@@ -238,12 +265,20 @@ export default function ProfessorGrades() {
                             </div>
                           </div>
                         </div>
-                        {s.average != null && (
-                          <div className={`grade-pill ${gradeTone(s.average)}`}>
-                            <span className="pill-label">Avg</span>
-                            <span className="pill-value">{Number(s.average).toFixed(2)}</span>
-                          </div>
-                        )}
+                        <div className="pill-stack">
+                          {s.attendanceRate != null && (
+                            <div className={`grade-pill ${attendanceTone(s.attendanceRate)}`}>
+                              <span className="pill-label">Attendance</span>
+                              <span className="pill-value">{Number(s.attendanceRate).toFixed(0)}%</span>
+                            </div>
+                          )}
+                          {s.average != null && (
+                            <div className={`grade-pill ${gradeTone(s.average)}`}>
+                              <span className="pill-label">Avg</span>
+                              <span className="pill-value">{Number(s.average).toFixed(2)}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {s.grades && s.grades.length > 0 ? (
