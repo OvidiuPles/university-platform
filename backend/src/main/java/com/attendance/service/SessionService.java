@@ -3,7 +3,6 @@ package com.attendance.service;
 import com.attendance.dto.SessionResponse;
 import com.attendance.model.Course;
 import com.attendance.model.Session;
-import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.CourseRepository;
 import com.attendance.repository.SessionRepository;
 import com.google.zxing.WriterException;
@@ -21,7 +20,6 @@ public class SessionService {
     
     private final SessionRepository sessionRepository;
     private final CourseRepository courseRepository;
-    private final AttendanceRepository attendanceRepository;
     private final QRCodeService qrCodeService;
     
     @Value("${app.qr.default-expiration-minutes:10}")
@@ -59,27 +57,6 @@ public class SessionService {
         response.setExpirationTime(expirationTime);
         response.setQrCodeBase64(qrCodeBase64);
         response.setAttendanceCount(0L);
-        
-        return response;
-    }
-
-    public SessionResponse getSessionDetails(Long sessionId) throws WriterException, IOException {
-        Session session = sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-        long attendanceCount = attendanceRepository.countBySessionId(sessionId);
-        
-        String qrCodeBase64 = qrCodeService.generateQRCode(session.getSessionToken());
-        
-        SessionResponse response = new SessionResponse();
-        response.setSessionId(session.getId());
-        response.setSessionToken(session.getSessionToken());
-        response.setCourseCode(session.getCourse().getCourseCode());
-        response.setCourseName(session.getCourse().getCourseName());
-        response.setStartTime(session.getStartTime());
-        response.setExpirationTime(session.getExpirationTime());
-        response.setQrCodeBase64(qrCodeBase64);
-        response.setAttendanceCount(attendanceCount);
         
         return response;
     }

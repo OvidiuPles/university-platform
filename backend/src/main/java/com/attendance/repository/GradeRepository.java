@@ -13,5 +13,4 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
 
     List<Grade> findByStudentIdOrderByCourse_CourseCodeAscCreatedAtDesc(Long studentId);
 
-    List<Grade> findByStudentIdAndCourseIdOrderByCreatedAtDesc(Long studentId, Long courseId);
 }

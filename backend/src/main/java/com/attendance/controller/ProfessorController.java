@@ -1,7 +1,6 @@
 package com.attendance.controller;
 
 import com.attendance.dto.SessionResponse;
-import com.attendance.model.Attendance;
 import com.attendance.model.Course;
 import com.attendance.repository.CourseRepository;
 import com.attendance.service.AttendanceService;
@@ -51,16 +50,6 @@ public class ProfessorController {
         }
     }
 
-    @GetMapping("/session/{sessionId}")
-    public ResponseEntity<SessionResponse> getSessionDetails(@PathVariable Long sessionId) {
-        try {
-            SessionResponse response = sessionService.getSessionDetails(sessionId);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PostMapping("/session/{sessionId}/end")
     public ResponseEntity<Map<String, String>> endSession(@PathVariable Long sessionId) {
         try {
@@ -69,12 +58,6 @@ public class ProfessorController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    @GetMapping("/session/{sessionId}/attendance")
-    public ResponseEntity<List<Attendance>> getAttendanceList(@PathVariable Long sessionId) {
-        List<Attendance> attendanceList = attendanceService.getSessionAttendance(sessionId);
-        return ResponseEntity.ok(attendanceList);
     }
 
     @GetMapping("/session/history")
