@@ -195,7 +195,7 @@ export default function ProfessorHistory() {
                       <div>
                         <div className="student-name">{s.name}</div>
                         <div className="student-meta">
-                          ID: {s.studentId} &nbsp;|&nbsp; {s.email}
+                          ID: {s.studentId} | {s.email}
                         </div>
                       </div>
                     </div>
