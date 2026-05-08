@@ -33,7 +33,7 @@ public class Grade {
     @Column(name = "grade_type", nullable = false, length = 50)
     private String gradeType;
 
-    @Column(length = 500)
+    @Column(length = 70)
     private String description;
 
     @Column(name = "created_at")

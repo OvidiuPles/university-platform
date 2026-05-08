@@ -38,7 +38,7 @@ CREATE TABLE grades (
     course_id BIGINT NOT NULL REFERENCES courses(id),
     grade_value NUMERIC(5,2) NOT NULL,
     grade_type VARCHAR(50) NOT NULL,
-    description VARCHAR(500),
+    description VARCHAR(70),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -307,7 +307,7 @@ export default function ProfessorGrades() {
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') submitGrade(s.studentId);
                           }}
-                          maxLength={100}
+                          maxLength={70}
                         />
                         <button
                           className="btn btn-primary btn-compact"
