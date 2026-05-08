@@ -104,10 +104,6 @@ public class AttendanceService {
         }
     }
 
-    public List<Attendance> getSessionAttendance(Long sessionId) {
-        return attendanceRepository.findBySessionId(sessionId);
-    }
-
     public Map.Entry<Session, List<Attendance>> getSessionAttendanceByToken(String sessionToken) {
         Session session = sessionRepository.findBySessionToken(sessionToken)
             .orElseThrow(() -> new RuntimeException("No session found for this token. Please check and try again."));

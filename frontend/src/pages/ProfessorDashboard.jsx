@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import NavBar from '../components/NavBar';
 
 export default function ProfessorDashboard() {
   const [courseId, setCourseId] = useState('');
@@ -120,15 +120,12 @@ export default function ProfessorDashboard() {
   };
 
   return (
-    <div className="container">
+    <>
+      <NavBar />
+      <div className="container">
       <div className="header">
         <h1>Professor Dashboard</h1>
         <p>Real-Time Attendance Management System</p>
-        <div style={{ marginTop: 14 }}>
-          <Link to="/professor/history" className="header-link">
-            View Session History
-          </Link>
-        </div>
       </div>
 
       <div className="content">
@@ -223,5 +220,6 @@ export default function ProfessorDashboard() {
         )}
       </div>
     </div>
+    </>
   );
 }

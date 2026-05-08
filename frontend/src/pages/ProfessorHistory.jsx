@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import NavBar from '../components/NavBar';
 
 function initials(name) {
   return name
@@ -81,15 +81,12 @@ export default function ProfessorHistory() {
   })();
 
   return (
-    <div className="container">
+    <>
+      <NavBar />
+      <div className="container">
       <div className="header">
         <h1>Session History</h1>
         <p>View attendance for any past or active session</p>
-        <div style={{ marginTop: 15 }}>
-          <Link to="/professor" className="header-link">
-            Back to Dashboard
-          </Link>
-        </div>
       </div>
 
       <div className="content">
@@ -198,7 +195,7 @@ export default function ProfessorHistory() {
                       <div>
                         <div className="student-name">{s.name}</div>
                         <div className="student-meta">
-                          ID: {s.studentId} &nbsp;|&nbsp; {s.email}
+                          ID: {s.studentId} | {s.email}
                         </div>
                       </div>
                     </div>
@@ -216,5 +213,6 @@ export default function ProfessorHistory() {
         )}
       </div>
     </div>
+    </>
   );
 }

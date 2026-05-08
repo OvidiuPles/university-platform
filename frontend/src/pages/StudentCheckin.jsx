@@ -13,11 +13,6 @@ export default function StudentCheckin() {
   const [formVisible, setFormVisible] = useState(true);
 
   useEffect(() => {
-    document.body.classList.add('center');
-    return () => document.body.classList.remove('center');
-  }, []);
-
-  useEffect(() => {
     if (!sessionToken) {
       setMessage({ text: 'Invalid or missing session token', type: 'error' });
       setFormVisible(false);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import NavBar from '../components/NavBar';
 
 export default function StudentHistory() {
   const [studentId, setStudentId] = useState('');
@@ -39,8 +40,10 @@ export default function StudentHistory() {
       : '0%';
 
   return (
-    <div className="container narrow">
-      <div className="header compact">
+    <>
+      <NavBar />
+      <div className="container narrow">
+      <div className="header">
         <h1>Attendance History</h1>
         <p>View your attendance records</p>
       </div>
@@ -110,5 +113,6 @@ export default function StudentHistory() {
         )}
       </div>
     </div>
+    </>
   );
 }
