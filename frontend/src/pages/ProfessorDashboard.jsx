@@ -3,6 +3,8 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import NavBar from '../components/NavBar';
 
+const SELECT_COURSE_PLACEHODLER = '-- Select a Course --';
+
 export default function ProfessorDashboard() {
   const [courseId, setCourseId] = useState('');
   const [courses, setCourses] = useState([]);
@@ -138,7 +140,7 @@ export default function ProfessorDashboard() {
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
             >
-              <option value="">-- Select a Course --</option>
+              <option value="">{SELECT_COURSE_PLACEHODLER}</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.courseCode} - {c.courseName}
