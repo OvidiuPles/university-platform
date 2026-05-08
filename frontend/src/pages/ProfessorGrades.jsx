@@ -246,12 +246,6 @@ export default function ProfessorGrades() {
                               <span className="pill-value">{Number(s.attendanceRate).toFixed(0)}%</span>
                             </div>
                           )}
-                          {s.average != null && (
-                            <div className={`grade-pill ${gradeTone(s.average)}`}>
-                              <span className="pill-label">Avg</span>
-                              <span className="pill-value">{Number(s.average).toFixed(2)}</span>
-                            </div>
-                          )}
                         </div>
                       </div>
 

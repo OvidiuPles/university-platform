@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,7 +58,6 @@ public class GradeController {
                         row.put("name", student.getName());
                         row.put("email", student.getEmail());
                         row.put("grades", new ArrayList<Map<String, Object>>());
-                        row.put("average", null);
                         byStudent.put(student.getStudentId(), row);
                     });
 
@@ -69,12 +67,6 @@ public class GradeController {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> list = (List<Map<String, Object>>) studentRow.get("grades");
                 list.add(toGradeRow(g));
-            }
-
-            for (Map<String, Object> row : byStudent.values()) {
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> list = (List<Map<String, Object>>) row.get("grades");
-                row.put("average", computeAverage(list));
             }
 
             Map<String, Object> response = new LinkedHashMap<>();
@@ -112,22 +104,12 @@ public class GradeController {
             for (Map<String, Object> row : byCourse.values()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> list = (List<Map<String, Object>>) row.get("grades");
-                row.put("average", computeAverage(list));
                 row.put("count", list.size());
-            }
-
-            int totalGrades = grades.size();
-            BigDecimal overall = null;
-            if (totalGrades > 0) {
-                BigDecimal sum = BigDecimal.ZERO;
-                for (Grade g : grades) sum = sum.add(g.getGradeValue());
-                overall = sum.divide(BigDecimal.valueOf(totalGrades), 2, java.math.RoundingMode.HALF_UP);
             }
 
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("studentId", studentId);
-            response.put("totalGrades", totalGrades);
-            response.put("overallAverage", overall);
+            response.put("totalGrades", grades.size());
             response.put("courses", new ArrayList<>(byCourse.values()));
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
@@ -149,20 +131,5 @@ public class GradeController {
         row.put("description", g.getDescription());
         row.put("createdAt", g.getCreatedAt());
         return row;
-    }
-
-    private BigDecimal computeAverage(List<Map<String, Object>> grades) {
-        if (grades == null || grades.isEmpty()) return null;
-        BigDecimal sum = BigDecimal.ZERO;
-        int count = 0;
-        for (Map<String, Object> row : grades) {
-            Object v = row.get("gradeValue");
-            if (v instanceof BigDecimal bd) {
-                sum = sum.add(bd);
-                count++;
-            }
-        }
-        if (count == 0) return null;
-        return sum.divide(BigDecimal.valueOf(count), 2, java.math.RoundingMode.HALF_UP);
     }
 }

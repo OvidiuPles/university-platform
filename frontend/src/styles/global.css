@@ -688,11 +688,6 @@ a.text-link {
   justify-content: flex-end;
 }
 
-.grade-pill.large {
-  padding: 10px 18px;
-  min-width: 80px;
-}
-
 .pill-label {
   font-size: 0.7em;
   text-transform: uppercase;
@@ -705,10 +700,6 @@ a.text-link {
 .pill-value {
   font-size: 1.4em;
   font-weight: 800;
-}
-
-.grade-pill.large .pill-value {
-  font-size: 1.7em;
 }
 
 .tone-excellent {

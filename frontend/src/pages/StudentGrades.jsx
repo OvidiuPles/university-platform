@@ -94,12 +94,6 @@ export default function StudentGrades() {
                   <div className="stat-number">{data.totalGrades}</div>
                   <div className="stat-label">Total grades</div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-number">
-                    {data.overallAverage != null ? Number(data.overallAverage).toFixed(2) : '-'}
-                  </div>
-                  <div className="stat-label">Overall average</div>
-                </div>
               </div>
 
               <h2 className="section-title">Per-Course Grades</h2>
@@ -114,12 +108,6 @@ export default function StudentGrades() {
                         </div>
                         <div className="course-grade-prof">Professor: {course.professorName}</div>
                       </div>
-                      {course.average != null && (
-                        <div className={`grade-pill large ${gradeTone(course.average)}`}>
-                          <span className="pill-label">Avg</span>
-                          <span className="pill-value">{Number(course.average).toFixed(2)}</span>
-                        </div>
-                      )}
                     </div>
 
                     <div className="grade-rows">
