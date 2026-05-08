@@ -174,15 +174,6 @@ export default function ProfessorGrades() {
     );
   }, [students, search]);
 
-  const overallStats = useMemo(() => {
-    const allGrades = students.flatMap((s) => s.grades || []);
-    if (!allGrades.length) return null;
-    const sum = allGrades.reduce((acc, g) => acc + Number(g.gradeValue), 0);
-    const avg = sum / allGrades.length;
-    const graded = students.filter((s) => (s.grades || []).length > 0).length;
-    return { avg: avg.toFixed(2), total: allGrades.length, graded };
-  }, [students]);
-
   const selectedCourse = courses.find((c) => String(c.id) === String(courseId));
 
   return (
@@ -224,23 +215,6 @@ export default function ProfessorGrades() {
 
           {courseId && students.length > 0 && (
             <>
-              {overallStats && (
-                <div className="stats-row">
-                  <div className="stat-card">
-                    <div className="stat-number">{overallStats.graded}</div>
-                    <div className="stat-label">Students with grades</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">{overallStats.total}</div>
-                    <div className="stat-label">Total grades</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-number">{overallStats.avg}</div>
-                    <div className="stat-label">Class average</div>
-                  </div>
-                </div>
-              )}
-
               <div className="search-bar">
                 <input
                   type="text"
