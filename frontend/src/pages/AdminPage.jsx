@@ -143,29 +143,31 @@ function CrudTable({ columns, rows, onEdit, onDelete }) {
     return <div className="admin-empty">No rows</div>;
   }
   return (
-    <table className="admin-table">
-      <thead>
-        <tr>
-          {columns.map((c) => (
-            <th key={c.key}>{c.label}</th>
-          ))}
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.id}>
+    <div className="admin-table-scroll">
+      <table className="admin-table">
+        <thead>
+          <tr>
             {columns.map((c) => (
-              <td key={c.key}>{c.render ? c.render(r) : (r[c.key] ?? '-')}</td>
+              <th key={c.key}>{c.label}</th>
             ))}
-            <td className="admin-actions">
-              <button onClick={() => onEdit(r)}>Edit</button>
-              <button className="danger" onClick={() => onDelete(r.id)}>Delete</button>
-            </td>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              {columns.map((c) => (
+                <td key={c.key}>{c.render ? c.render(r) : (r[c.key] ?? '-')}</td>
+              ))}
+              <td className="admin-actions">
+                <button onClick={() => onEdit(r)}>Edit</button>
+                <button className="danger" onClick={() => onDelete(r.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
