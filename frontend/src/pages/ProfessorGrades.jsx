@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import NavBar from '../components/NavBar';
 
 const GRADE_TYPES = ['Exam', 'Project', 'Homework', 'Quiz'];
+const SELECT_COURSE_PLACEHOLDER = '-- Select a Course --';
 
 function initials(name) {
   return name
@@ -195,7 +196,7 @@ export default function ProfessorGrades() {
                 value={courseId}
                 onChange={(e) => setCourseId(e.target.value)}
               >
-                <option value="">-- Select a Course --</option>
+                <option value="">{SELECT_COURSE_PLACEHOLDER}</option>
                 {courses.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.courseCode} - {c.courseName}

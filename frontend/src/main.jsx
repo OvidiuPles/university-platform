@@ -7,6 +7,7 @@ import ProfessorGrades from './pages/ProfessorGrades';
 import StudentCheckin from './pages/StudentCheckin';
 import StudentHistory from './pages/StudentHistory';
 import StudentGrades from './pages/StudentGrades';
+import AdminPage from './pages/AdminPage';
 import './styles/global.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -20,6 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/checkin" element={<StudentCheckin />} />
         <Route path="/student/history" element={<StudentHistory />} />
         <Route path="/student/grades" element={<StudentGrades />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
