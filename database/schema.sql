@@ -57,19 +57,19 @@ CREATE INDEX idx_grades_student ON grades(student_id);
 CREATE INDEX idx_grades_course ON grades(course_id);
 
 INSERT INTO students (student_id, name, email) VALUES
-('S001', 'Alice Johnson', 'alice@university.edu'),
-('S002', 'Bob Smith', 'bob@university.edu'),
-('S003', 'Carol Williams', 'carol@university.edu'),
-('S004', 'David Brown', 'david@university.edu'),
-('S005', 'Eve Davis', 'eve@university.edu');
+('S001', 'Alice Pop', 'alice@university'),
+('S002', 'Ion Popescu', 'ion@university'),
+('S003', 'Andrei Vanic', 'andrei@university'),
+('S004', 'David Brumaru', 'david@university'),
+('S005', 'Evea Stan', 'eva@university');
 
 INSERT INTO courses (course_code, course_name, professor_name) VALUES
-('CS101', 'Introduction to Computer Science', 'Dr. Smith'),
-('CS201', 'Data Structures and Algorithms', 'Dr. Johnson'),
-('CS301', 'Database Systems', 'Dr. Williams');
+('CS101', 'Computer Science Basics', 'Dr. Popescu'),
+('CS201', 'Data Structures and Algorithms', 'Dr. Ionescu'),
+('CS301', 'Database Systems', 'Dr. Johnson');
 
 -- passwords: admin / proffesor / student.
 INSERT INTO users (name, email, password_hash, role, student_id) VALUES
-('Admin User', 'admin@university.edu', '$2a$10$lhMBGpSbEea7kOsdC25xDO655mH2ZVkCFXoCLaSa0N4mgcvkUqlFu', 'ADMIN', NULL),
-('Dr. Smith', 'professor@university.edu', '$2a$10$01hwtlCdQKjpXYmRFcYrau6EW/PUriMe2.rbmvS3evlyz98XYuYwG', 'PROFESSOR', NULL),
-('Alice Johnson', 'student@university.edu', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S001');
+('Admin User', 'admin', '$2a$10$lhMBGpSbEea7kOsdC25xDO655mH2ZVkCFXoCLaSa0N4mgcvkUqlFu', 'ADMIN', NULL),
+('Dr. Popescu', 'professor', '$2a$10$01hwtlCdQKjpXYmRFcYrau6EW/PUriMe2.rbmvS3evlyz98XYuYwG', 'PROFESSOR', NULL),
+('Alice Pop', 'student', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S001');

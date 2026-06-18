@@ -80,7 +80,6 @@ export default function Login() {
             <label htmlFor="email">Email</label>
             <input
               id="email"
-              type="email"
               value={form.email}
               onChange={(e) => setField('email', e.target.value)}
               required
