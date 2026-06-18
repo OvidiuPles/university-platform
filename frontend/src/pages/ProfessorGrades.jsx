@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 const GRADE_TYPES = ['Exam', 'Project', 'Homework', 'Quiz'];
 const SELECT_COURSE_PLACEHOLDER = '-- Select a Course --';
@@ -52,7 +53,7 @@ export default function ProfessorGrades() {
   }, [alert]);
 
   useEffect(() => {
-    fetch('/api/professor/courses')
+    apiFetch('/api/professor/courses')
       .then((r) => r.json())
       .then(setCourses)
       .catch(() => setAlert({ message: 'Could not load courses', type: 'danger' }));
@@ -69,8 +70,8 @@ export default function ProfessorGrades() {
   const loadCourseGrades = async (id) => {
     try {
       const [gradesRes, rateRes] = await Promise.all([
-        fetch(`/api/professor/grades?courseId=${id}`),
-        fetch(`/api/professor/attendance-rate?courseId=${id}`),
+        apiFetch(`/api/professor/grades?courseId=${id}`),
+        apiFetch(`/api/professor/attendance-rate?courseId=${id}`),
       ]);
       const gradesData = await gradesRes.json();
       if (gradesData.status === 'error') {
@@ -122,7 +123,7 @@ export default function ProfessorGrades() {
     }
     setSavingFor(studentId);
     try {
-      const res = await fetch('/api/professor/grades', {
+      const res = await apiFetch('/api/professor/grades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,7 +152,7 @@ export default function ProfessorGrades() {
   const deleteGrade = async (gradeId) => {
     if (!confirm('Delete this grade?')) return;
     try {
-      const res = await fetch(`/api/professor/grades/${gradeId}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/professor/grades/${gradeId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Failed to delete', type: 'danger' });

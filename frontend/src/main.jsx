@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route
           path="/professor"
           element={
-            <ProtectedRoute allow={['PROFESSOR', 'ADMIN']}>
+            <ProtectedRoute allow={['PROFESSOR']}>
               <ProfessorDashboard />
             </ProtectedRoute>
           }
@@ -36,7 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route
           path="/professor/history"
           element={
-            <ProtectedRoute allow={['PROFESSOR', 'ADMIN']}>
+            <ProtectedRoute allow={['PROFESSOR']}>
               <ProfessorHistory />
             </ProtectedRoute>
           }
@@ -44,7 +44,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route
           path="/professor/grades"
           element={
-            <ProtectedRoute allow={['PROFESSOR', 'ADMIN']}>
+            <ProtectedRoute allow={['PROFESSOR']}>
               <ProfessorGrades />
             </ProtectedRoute>
           }
@@ -54,7 +54,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route
           path="/student/history"
           element={
-            <ProtectedRoute allow={['STUDENT', 'ADMIN']}>
+            <ProtectedRoute allow={['STUDENT']}>
               <StudentHistory />
             </ProtectedRoute>
           }
@@ -62,7 +62,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route
           path="/student/grades"
           element={
-            <ProtectedRoute allow={['STUDENT', 'ADMIN']}>
+            <ProtectedRoute allow={['STUDENT']}>
               <StudentGrades />
             </ProtectedRoute>
           }

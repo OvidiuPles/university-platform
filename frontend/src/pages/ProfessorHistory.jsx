@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 function initials(name) {
   return name
@@ -33,7 +34,7 @@ export default function ProfessorHistory() {
     setLoading(true);
 
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/professor/session/history?token=${encodeURIComponent(trimmed)}`
       );
       const payload = await res.json();

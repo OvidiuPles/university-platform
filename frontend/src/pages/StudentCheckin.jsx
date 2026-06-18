@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
+import { apiFetch } from '../auth';
 
 export default function StudentCheckin() {
   const [searchParams] = useSearchParams();
@@ -23,7 +24,7 @@ export default function StudentCheckin() {
       type: 'info',
     });
 
-    fetch('/api/student/validate/checkin', {
+    apiFetch('/api/student/validate/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionToken }),
@@ -57,7 +58,7 @@ export default function StudentCheckin() {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/student/checkin', {
+      const res = await apiFetch('/api/student/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionToken, studentId: id }),

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../auth';
 import '../styles/admin.css';
 
 const SELECT_PLACEHODLER = '-- Select --';
@@ -74,7 +75,7 @@ function useResource(endpoint, setAlert) {
   const reload = async () => {
     setLoading(true);
     try {
-      const res = await fetch(endpoint);
+      const res = await apiFetch(endpoint);
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Failed to load!', type: 'danger' });
@@ -98,7 +99,7 @@ function useResource(endpoint, setAlert) {
     const url = id ? `${endpoint}/${id}` : endpoint;
     const method = id ? 'PUT' : 'POST';
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -121,7 +122,7 @@ function useResource(endpoint, setAlert) {
   const remove = async (id, label) => {
     if (!confirm(`Delete this ${label}?`)) return;
     try {
-      const res = await fetch(`${endpoint}/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`${endpoint}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Delete failed', type: 'danger' });
@@ -295,7 +296,7 @@ function SessionsSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/courses')
+    apiFetch('/api/admin/courses')
       .then((r) => r.json())
       .then((d) => setCourses(Array.isArray(d) ? d : []))
       .catch(() => {});
@@ -376,8 +377,8 @@ function AttendanceSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/sessions').then((r) => r.json()).then((d) => setSessions(Array.isArray(d) ? d : [])).catch(() => {});
-    fetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/sessions').then((r) => r.json()).then((d) => setSessions(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -448,8 +449,8 @@ function GradesSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
-    fetch('/api/admin/courses').then((r) => r.json()).then((d) => setCourses(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/courses').then((r) => r.json()).then((d) => setCourses(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));

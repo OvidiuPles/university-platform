@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 function gradeTone(value) {
   if (value == null) return 'tone-neutral';
@@ -31,7 +32,7 @@ export default function StudentGrades() {
     setLoading(true);
     setData(null);
     try {
-      const res = await fetch(`/api/student/grades?studentId=${encodeURIComponent(id)}`);
+      const res = await apiFetch(`/api/student/grades?studentId=${encodeURIComponent(id)}`);
       const payload = await res.json();
       if (!res.ok || payload.status === 'error') {
         setAlert({ message: payload.message || 'Could not load grades', type: 'danger' });

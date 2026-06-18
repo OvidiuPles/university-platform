@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 export default function StudentHistory() {
   const [studentId, setStudentId] = useState('');
@@ -15,7 +16,7 @@ export default function StudentHistory() {
     }
 
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/student/attendance/history?studentId=${encodeURIComponent(id)}`
       );
       if (!res.ok) throw new Error('Student not found');

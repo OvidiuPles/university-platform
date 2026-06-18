@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 const SELECT_COURSE_PLACEHODLER = '-- Select a Course --';
 
@@ -22,7 +23,7 @@ export default function ProfessorDashboard() {
   }, [alert]);
 
   useEffect(() => {
-    fetch('/api/professor/courses')
+    apiFetch('/api/professor/courses')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load courses');
         return res.json();
@@ -33,7 +34,7 @@ export default function ProfessorDashboard() {
         setAlert({ message: 'Error loading courses', type: 'danger' });
       });
 
-    fetch('/api/professor/session/config')
+    apiFetch('/api/professor/session/config')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load session config');
         return res.json();
@@ -57,7 +58,7 @@ export default function ProfessorDashboard() {
       return;
     }
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/professor/session/start?courseId=${courseId}&expirationMinutes=${expirationMinutes}`,
         { method: 'POST' }
       );
@@ -102,7 +103,7 @@ export default function ProfessorDashboard() {
   const endSession = async () => {
     if (!sessionData) return;
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/professor/session/${sessionData.sessionId}/end`,
         { method: 'POST' }
       );
