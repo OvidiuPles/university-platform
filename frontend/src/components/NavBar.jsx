@@ -1,8 +1,19 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { getAuth, clearAuth, apiFetch } from '../auth';
 
 export default function NavBar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const auth = getAuth();
   const isStudent = pathname.startsWith('/student') || pathname.startsWith('/checkin');
+
+  const logout = async () => {
+    try {
+      await apiFetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    clearAuth();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <nav className="navbar">
@@ -34,6 +45,14 @@ export default function NavBar() {
               <NavLink to="/professor/grades" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
                 Grades
               </NavLink>
+            </div>
+          )}
+
+          {auth && (
+            <div className="nav-user">
+              <span className="nav-user-name">{auth.name}</span>
+              <span className="nav-user-role">{auth.role}</span>
+              <button className="nav-logout" onClick={logout}>Logout</button>
             </div>
           )}
         </div>
