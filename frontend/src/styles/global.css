@@ -626,6 +626,66 @@ a.text-link {
   }
 }
 
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  padding-left: 16px;
+  border-left: 1px solid #e3e4ee;
+}
+
+.nav-user-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9em;
+}
+
+.nav-user-role {
+  font-size: 0.68em;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  color: #667eea;
+  background: #f0f1f8;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.nav-logout {
+  background: #f0f1f8;
+  color: #555;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.nav-logout:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  width: auto;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
 .course-meta-line {
   display: flex;
   gap: 8px;
