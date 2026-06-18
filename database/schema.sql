@@ -1,3 +1,14 @@
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    student_id VARCHAR(50),
+    token VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE students (
     id BIGSERIAL PRIMARY KEY,
     student_id VARCHAR(50) UNIQUE NOT NULL,
@@ -56,3 +67,9 @@ INSERT INTO courses (course_code, course_name, professor_name) VALUES
 ('CS101', 'Introduction to Computer Science', 'Dr. Smith'),
 ('CS201', 'Data Structures and Algorithms', 'Dr. Johnson'),
 ('CS301', 'Database Systems', 'Dr. Williams');
+
+-- passwords: admin / proffesor / student.
+INSERT INTO users (name, email, password_hash, role, student_id) VALUES
+('Admin User', 'admin@university.edu', '$2a$10$lhMBGpSbEea7kOsdC25xDO655mH2ZVkCFXoCLaSa0N4mgcvkUqlFu', 'ADMIN', NULL),
+('Dr. Smith', 'professor@university.edu', '$2a$10$01hwtlCdQKjpXYmRFcYrau6EW/PUriMe2.rbmvS3evlyz98XYuYwG', 'PROFESSOR', NULL),
+('Alice Johnson', 'student@university.edu', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S001');
