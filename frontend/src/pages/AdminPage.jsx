@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { apiFetch, clearAuth } from '../auth';
+import { apiFetch } from '../auth';
+import NavBar from '../components/NavBar';
 import '../styles/admin.css';
 
 const SELECT_PLACEHODLER = '-- Select --';
@@ -28,7 +28,6 @@ function toLocalInput(iso) {
 export default function AdminPage() {
   const [tab, setTab] = useState('users');
   const [alert, setAlert] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!alert) return;
@@ -36,20 +35,9 @@ export default function AdminPage() {
     return () => clearTimeout(t);
   }, [alert]);
 
-  const logout = async () => {
-    try {
-      await apiFetch('/api/auth/logout', { method: 'POST' });
-    } catch {}
-    clearAuth();
-    navigate('/login', { replace: true });
-  };
-
   return (
     <div className="container">
-      <div className="header admin-header">
-        <h1>Admin Control</h1>
-        <button className="nav-logout" onClick={logout}>Logout</button>
-      </div>
+      <NavBar />
       <div className="content admin-content">
         <div className="admin-tabs">
           {TABS.map((t) => (

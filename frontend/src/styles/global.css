@@ -589,14 +589,6 @@ a.text-link {
   gap: 8px;
 }
 
-.nav-group-label {
-  font-size: 0.72em;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #999;
-  margin-right: 4px;
-  font-weight: 700;
-}
 
 .nav-link {
   text-decoration: none;

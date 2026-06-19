@@ -6,6 +6,7 @@ export default function NavBar() {
   const navigate = useNavigate();
   const auth = getAuth();
   const isStudent = pathname.startsWith('/student') || pathname.startsWith('/checkin');
+  const isAdmin = pathname.startsWith('/admin');
 
   const logout = async () => {
     try {
@@ -23,9 +24,8 @@ export default function NavBar() {
         </div>
 
         <div className="navbar-links">
-          {isStudent ? (
+          {isAdmin ? null : isStudent ? (
             <div className="nav-group">
-              <span className="nav-group-label">Student</span>
               <NavLink to="/student/history" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
                 Attendance
               </NavLink>
@@ -35,7 +35,6 @@ export default function NavBar() {
             </div>
           ) : (
             <div className="nav-group">
-              <span className="nav-group-label">Professor</span>
               <NavLink to="/professor" end className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
                 Dashboard
               </NavLink>
