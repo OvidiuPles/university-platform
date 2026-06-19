@@ -5,10 +5,10 @@ import com.attendance.dto.AttendanceUpdate;
 import com.attendance.dto.CheckInRequest;
 import com.attendance.model.Attendance;
 import com.attendance.model.Session;
-import com.attendance.model.Student;
+import com.attendance.model.User;
 import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.SessionRepository;
-import com.attendance.repository.StudentRepository;
+import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -28,7 +28,7 @@ public class AttendanceService {
     
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final RabbitTemplate rabbitTemplate;
     private final SimpMessagingTemplate messagingTemplate;
     
@@ -47,8 +47,8 @@ public class AttendanceService {
     }
 
     public void queueCheckIn(CheckInRequest request) {
-        log.info("Queuing check-in request for student: {} in session token: {}", 
-                 request.getStudentId(), request.getSessionToken());
+        log.info("Queuing check-in request for user: {} in session token: {}",
+                 request.getUserId(), request.getSessionToken());
         rabbitTemplate.convertAndSend(RabbitMQConfig.ATTENDANCE_QUEUE, request);
     }
 
@@ -56,7 +56,7 @@ public class AttendanceService {
     @Transactional
     public void processCheckIn(CheckInRequest request) {
         try {
-            log.info("Processing check-in for student: {}", request.getStudentId());
+            log.info("Processing check-in for user: {}", request.getUserId());
 
             Session session = sessionRepository.findBySessionToken(request.getSessionToken())
                 .orElseThrow(() -> new RuntimeException("Invalid session token"));
@@ -64,16 +64,16 @@ public class AttendanceService {
             if (!session.getIsActive()) {
                 throw new RuntimeException("Session is not active");
             }
-            
+
             if (session.isExpired()) {
                 throw new RuntimeException("Session has expired");
             }
 
-            Student student = studentRepository.findByStudentId(request.getStudentId())
+            User student = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
             if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), student.getId()).isPresent()) {
-                log.warn("Duplicate attendance attempt for student: {} in session: {}", 
+                log.warn("Duplicate attendance attempt for student: {} in session: {}",
                          student.getStudentId(), session.getId());
                 return;
             }
@@ -111,9 +111,7 @@ public class AttendanceService {
         return Map.entry(session, attendanceList);
     }
 
-    public List<Attendance> getStudentAttendanceHistory(String studentId) {
-        Student student = studentRepository.findByStudentId(studentId)
-            .orElseThrow(() -> new RuntimeException("Student not found"));
-        return attendanceRepository.findByStudentId(student.getId());
+    public List<Attendance> getStudentAttendanceHistory(Long userId) {
+        return attendanceRepository.findByStudentId(userId);
     }
 }

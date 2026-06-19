@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import { apiFetch } from '../auth';
 
@@ -17,22 +17,16 @@ function formatDate(iso) {
 }
 
 export default function StudentGrades() {
-  const [studentId, setStudentId] = useState('');
   const [data, setData] = useState(null);
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const loadGrades = async () => {
-    const id = studentId.trim();
-    if (!id) {
-      setAlert({ message: 'Please enter your Student ID', type: 'danger' });
-      return;
-    }
     setAlert(null);
     setLoading(true);
     setData(null);
     try {
-      const res = await apiFetch(`/api/student/grades?studentId=${encodeURIComponent(id)}`);
+      const res = await apiFetch('/api/student/grades');
       const payload = await res.json();
       if (!res.ok || payload.status === 'error') {
         setAlert({ message: payload.message || 'Could not load grades', type: 'danger' });
@@ -46,6 +40,10 @@ export default function StudentGrades() {
     }
   };
 
+  useEffect(() => {
+    loadGrades();
+  }, []);
+
   const hasResults = data && (data.courses || []).length > 0;
 
   return (
@@ -58,23 +56,6 @@ export default function StudentGrades() {
         </div>
 
         <div className="content">
-          <div className="search-box">
-            <div className="form-group">
-              <input
-                type="text"
-                placeholder="Enter your Student ID (e.g., S001)"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') loadGrades();
-                }}
-              />
-              <button className="btn btn-primary" onClick={loadGrades}>
-                View Grades
-              </button>
-            </div>
-          </div>
-
           {alert && <div className={`alert alert-${alert.type}`}>{alert.message}</div>}
 
           {loading && (

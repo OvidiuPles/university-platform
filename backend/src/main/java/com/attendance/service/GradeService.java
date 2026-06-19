@@ -3,10 +3,11 @@ package com.attendance.service;
 import com.attendance.dto.GradeRequest;
 import com.attendance.model.Course;
 import com.attendance.model.Grade;
-import com.attendance.model.Student;
+import com.attendance.model.Role;
+import com.attendance.model.User;
 import com.attendance.repository.CourseRepository;
 import com.attendance.repository.GradeRepository;
-import com.attendance.repository.StudentRepository;
+import com.attendance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class GradeService {
     private static final BigDecimal MAX_GRADE = new BigDecimal("10");
 
     private final GradeRepository gradeRepository;
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final CourseRepository courseRepository;
 
     @Transactional
@@ -32,8 +33,11 @@ public class GradeService {
         validateGradeValue(request.getGradeValue());
         validateGradeType(request.getGradeType());
 
-        Student student = studentRepository.findByStudentId(request.getStudentId())
+        User student = userRepository.findByStudentId(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found: " + request.getStudentId()));
+        if (student.getRole() != Role.STUDENT) {
+            throw new RuntimeException("User is not a student" + request.getStudentId());
+        }
 
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -66,10 +70,8 @@ public class GradeService {
         return gradeRepository.findByCourseIdOrderByStudent_NameAsc(courseId);
     }
 
-    public List<Grade> getGradesForStudent(String studentId) {
-        Student student = studentRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        return gradeRepository.findByStudentIdOrderByCourse_CourseCodeAscCreatedAtDesc(student.getId());
+    public List<Grade> getGradesForStudent(Long userId) {
+        return gradeRepository.findByStudentIdOrderByCourse_CourseCodeAscCreatedAtDesc(userId);
     }
 
     private void validateGradeValue(BigDecimal value) {

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { apiFetch } from '../auth';
+import { useNavigate } from 'react-router-dom';
+import { apiFetch, clearAuth } from '../auth';
 import '../styles/admin.css';
 
 const SELECT_PLACEHODLER = '-- Select --';
@@ -27,6 +28,7 @@ function toLocalInput(iso) {
 export default function AdminPage() {
   const [tab, setTab] = useState('students');
   const [alert, setAlert] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!alert) return;
@@ -34,10 +36,19 @@ export default function AdminPage() {
     return () => clearTimeout(t);
   }, [alert]);
 
+  const logout = async () => {
+    try {
+      await apiFetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    clearAuth();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="container">
-      <div className="header">
+      <div className="header admin-header">
         <h1>Admin Control</h1>
+        <button className="nav-logout" onClick={logout}>Logout</button>
       </div>
       <div className="content admin-content">
         <div className="admin-tabs">
@@ -207,10 +218,11 @@ function StudentsSection({ setAlert }) {
     setEditingId(null);
   };
   const submit = async () => {
-    const ok = await save(editingId, form);
+    const body = { studentId: form.studentId, name: form.name, email: form.email };
+    const ok = await save(editingId, body);
     if (ok) cancel();
   };
-  
+
   const startEdit = (r) => {
     setEditingId(r.id);
     setForm({ studentId: r.studentId, name: r.name, email: r.email });
@@ -226,17 +238,19 @@ function StudentsSection({ setAlert }) {
 
   return (
     <>
-      <FormShell editingId={editingId} onCancel={cancel} onSubmit={submit}>
-        <label>Student ID
-          <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required />
-        </label>
-        <label>Name
-          <input value={form.name} onChange={(e) => setField('name', e.target.value)} required />
-        </label>
-        <label>Email
-          <input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
-        </label>
-      </FormShell>
+      {editingId && (
+        <FormShell editingId={editingId} onCancel={cancel} onSubmit={submit}>
+          <label>Student ID
+            <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required />
+          </label>
+          <label>Name
+            <input value={form.name} onChange={(e) => setField('name', e.target.value)} required />
+          </label>
+          <label>Email
+            <input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
+          </label>
+        </FormShell>
+      )}
       <CrudTable columns={columns} rows={rows} onEdit={startEdit} onDelete={(id) => remove(id, 'student')} />
     </>
   );

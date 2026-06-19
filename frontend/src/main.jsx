@@ -50,7 +50,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           }
         />
 
-        <Route path="/checkin" element={<StudentCheckin />} />
+        <Route
+          path="/checkin"
+          element={
+            <ProtectedRoute allow={['STUDENT']}>
+              <StudentCheckin />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/student/history"
           element={

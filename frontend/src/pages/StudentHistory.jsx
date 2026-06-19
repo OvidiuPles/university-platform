@@ -1,38 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import { apiFetch } from '../auth';
 
 export default function StudentHistory() {
-  const [studentId, setStudentId] = useState('');
   const [history, setHistory] = useState(null);
   const [sessionsCount, setSessionsCount] = useState(0);
   const [alert, setAlert] = useState(null);
 
   const loadAttendanceHistory = async () => {
-    const id = studentId.trim();
-    if (!id) {
-      setAlert({ message: 'Please enter your Student ID', type: 'danger' });
-      return;
-    }
-
     try {
-      const res = await apiFetch(
-        `/api/student/attendance/history?studentId=${encodeURIComponent(id)}`
-      );
-      if (!res.ok) throw new Error('Student not found');
+      const res = await apiFetch('/api/student/attendance/history');
+      if (!res.ok) throw new Error('Could not load history');
       const data = await res.json();
       setAlert(null);
       setHistory(data.history);
       setSessionsCount(data.sessionsCount);
     } catch (e) {
       setAlert({
-        message: 'Error loading attendance history. Please check your Student ID.',
+        message: 'Error loading attendance history. Please try again.',
         type: 'danger',
       });
       setHistory(null);
       setSessionsCount(0);
     }
   };
+
+  useEffect(() => {
+    loadAttendanceHistory();
+  }, []);
 
   const showStats = history !== null && history.length > 0;
   const attendanceRate =
@@ -50,23 +45,6 @@ export default function StudentHistory() {
       </div>
 
       <div className="content">
-        <div className="search-box">
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="Enter your Student ID (e.g., S001)"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') loadAttendanceHistory();
-              }}
-            />
-            <button className="btn btn-primary" onClick={loadAttendanceHistory}>
-              View History
-            </button>
-          </div>
-        </div>
-
         {alert && (
           <div className={`alert alert-${alert.type}`}>{alert.message}</div>
         )}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { setAuth, homePathFor } from '../auth';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({
     name: '',
@@ -45,7 +46,8 @@ export default function Login() {
         return;
       }
       setAuth(data);
-      navigate(homePathFor(data.role), { replace: true });
+      const from = location.state?.from;
+      navigate(from || homePathFor(data.role), { replace: true });
     } catch {
       setError('Connection error. Please try again.');
     } finally {

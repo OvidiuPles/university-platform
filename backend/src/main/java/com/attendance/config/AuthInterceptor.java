@@ -38,6 +38,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (user.get().getRole() != requiredRole) {
             return deny(response, HttpServletResponse.SC_FORBIDDEN, requiredRole.name() + " access required");
         }
+        request.setAttribute("currentUser", user.get());
         return true;
     }
 

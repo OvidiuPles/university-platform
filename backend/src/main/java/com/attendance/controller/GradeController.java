@@ -2,7 +2,9 @@ package com.attendance.controller;
 
 import com.attendance.dto.GradeRequest;
 import com.attendance.model.Grade;
-import com.attendance.repository.StudentRepository;
+import com.attendance.model.Role;
+import com.attendance.model.User;
+import com.attendance.repository.UserRepository;
 import com.attendance.service.GradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ import java.util.Map;
 public class GradeController {
 
     private final GradeService gradeService;
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     @PostMapping("/professor/grades")
     public ResponseEntity<?> createGrade(@RequestBody GradeRequest request) {
@@ -50,7 +52,7 @@ public class GradeController {
             List<Grade> grades = gradeService.getGradesForCourse(courseId);
             Map<String, Map<String, Object>> byStudent = new LinkedHashMap<>();
 
-            studentRepository.findAll().stream()
+            userRepository.findByRole(Role.STUDENT).stream()
                     .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                     .forEach(student -> {
                         Map<String, Object> row = new LinkedHashMap<>();
@@ -80,9 +82,10 @@ public class GradeController {
     }
 
     @GetMapping("/student/grades")
-    public ResponseEntity<?> getStudentGrades(@RequestParam String studentId) {
+    public ResponseEntity<?> getStudentGrades(@RequestAttribute("currentUser") User user) {
         try {
-            List<Grade> grades = gradeService.getGradesForStudent(studentId);
+            String studentId = user.getStudentId();
+            List<Grade> grades = gradeService.getGradesForStudent(user.getId());
 
             Map<Long, Map<String, Object>> byCourse = new LinkedHashMap<>();
             for (Grade g : grades) {

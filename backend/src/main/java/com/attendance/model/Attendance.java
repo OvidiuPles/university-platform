@@ -25,7 +25,7 @@ public class Attendance {
     
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    private User student;
     
     @Column(name = "check_in_time")
     private LocalDateTime checkInTime = LocalDateTime.now();

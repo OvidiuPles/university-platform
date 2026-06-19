@@ -3,11 +3,12 @@ package com.attendance.controller;
 import com.attendance.dto.SessionResponse;
 import com.attendance.model.Attendance;
 import com.attendance.model.Course;
+import com.attendance.model.Role;
 import com.attendance.model.Session;
 import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.CourseRepository;
 import com.attendance.repository.SessionRepository;
-import com.attendance.repository.StudentRepository;
+import com.attendance.repository.UserRepository;
 import com.attendance.service.AttendanceService;
 import com.attendance.service.SessionService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ProfessorController {
     private final CourseRepository courseRepository;
     private final SessionRepository sessionRepository;
     private final AttendanceRepository attendanceRepository;
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     @Value("${app.qr.default-expiration-minutes:10}")
     private int defaultExpirationMinutes;
@@ -132,7 +133,7 @@ public class ProfessorController {
                 }
             }
 
-            List<Map<String, Object>> students = studentRepository.findAll().stream()
+            List<Map<String, Object>> students = userRepository.findByRole(Role.STUDENT).stream()
                     .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                     .map(student -> {
                         int attended = attendedSessionsByStudent.getOrDefault(student.getId(), Set.of()).size();

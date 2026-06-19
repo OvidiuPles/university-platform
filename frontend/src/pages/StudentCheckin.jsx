@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
-import { apiFetch } from '../auth';
+import { apiFetch, getAuth } from '../auth';
 
 export default function StudentCheckin() {
   const [searchParams] = useSearchParams();
   const sessionToken = searchParams.get('token');
+  const student = getAuth();
 
-  const [studentId, setStudentId] = useState('');
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -20,7 +20,7 @@ export default function StudentCheckin() {
       return;
     }
     setMessage({
-      text: 'Session found! Please enter your Student ID to check in.',
+      text: 'Session found! Confirm your check in below.',
       type: 'info',
     });
 
@@ -45,11 +45,6 @@ export default function StudentCheckin() {
   }, [sessionToken]);
 
   const submitCheckIn = async () => {
-    const id = studentId.trim();
-    if (!id) {
-      setMessage({ text: 'Please enter your Student ID', type: 'error' });
-      return;
-    }
     if (!sessionToken) {
       setMessage({ text: 'Invalid session token', type: 'error' });
       return;
@@ -61,7 +56,7 @@ export default function StudentCheckin() {
       const res = await apiFetch('/api/student/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionToken, studentId: id }),
+        body: JSON.stringify({ sessionToken }),
       });
       const data = await res.json();
       setLoading(false);
@@ -103,19 +98,10 @@ export default function StudentCheckin() {
         {formVisible && !success && (
           <div>
             <div className="form-group tall">
-              <label htmlFor="studentId">Student ID:</label>
-              <input
-                type="text"
-                id="studentId"
-                className="large"
-                placeholder="Enter your student ID (e.g., S001)"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') submitCheckIn();
-                }}
-                required
-              />
+              <p>
+                Check in as <strong>{student?.name}</strong>
+                {student?.studentId ? ` (${student.studentId})` : ''}
+              </p>
             </div>
 
             <button className="btn full" onClick={submitCheckIn}>
