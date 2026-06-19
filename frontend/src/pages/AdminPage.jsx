@@ -6,7 +6,7 @@ import '../styles/admin.css';
 const SELECT_PLACEHODLER = '-- Select --';
 
 const TABS = [
-  { key: 'students', label: 'Students' },
+  { key: 'users', label: 'Users' },
   { key: 'courses', label: 'Courses' },
   { key: 'sessions', label: 'Sessions' },
   { key: 'attendance', label: 'Attendance' },
@@ -26,7 +26,7 @@ function toLocalInput(iso) {
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState('students');
+  const [tab, setTab] = useState('users');
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
 
@@ -69,7 +69,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {tab === 'students' && <StudentsSection setAlert={setAlert} />}
+        {tab === 'users' && <UsersSection setAlert={setAlert} />}
         {tab === 'courses' && <CoursesSection setAlert={setAlert} />}
         {tab === 'sessions' && <SessionsSection setAlert={setAlert} />}
         {tab === 'attendance' && <AttendanceSection setAlert={setAlert} />}
@@ -206,9 +206,9 @@ function FormShell({ editingId, onCancel, onSubmit, children }) {
   );
 }
 
-function StudentsSection({ setAlert }) {
-  const { rows, save, remove } = useResource('/api/admin/students', setAlert);
-  const empty = { studentId: '', name: '', email: '' };
+function UsersSection({ setAlert }) {
+  const { rows, save, remove } = useResource('/api/admin/users', setAlert);
+  const empty = { name: '', email: '', role: 'STUDENT', studentId: '' };
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
 
@@ -218,21 +218,26 @@ function StudentsSection({ setAlert }) {
     setEditingId(null);
   };
   const submit = async () => {
-    const body = { studentId: form.studentId, name: form.name, email: form.email };
+    const body = {
+      name: form.name,
+      email: form.email,
+      studentId: form.studentId || null,
+    };
     const ok = await save(editingId, body);
     if (ok) cancel();
   };
 
   const startEdit = (r) => {
     setEditingId(r.id);
-    setForm({ studentId: r.studentId, name: r.name, email: r.email });
+    setForm({ name: r.name ?? '', email: r.email ?? '', role: r.role ?? 'STUDENT', studentId: r.studentId ?? '' });
   };
 
   const columns = [
     { key: 'id', label: 'ID' },
-    { key: 'studentId', label: 'Student ID' },
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
+    { key: 'role', label: 'Role' },
+    { key: 'studentId', label: 'Student ID' },
     { key: 'createdAt', label: 'Created', render: (r) => formatDate(r.createdAt) },
   ];
 
@@ -240,18 +245,21 @@ function StudentsSection({ setAlert }) {
     <>
       {editingId && (
         <FormShell editingId={editingId} onCancel={cancel} onSubmit={submit}>
-          <label>Student ID
-            <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required />
-          </label>
           <label>Name
             <input value={form.name} onChange={(e) => setField('name', e.target.value)} required />
           </label>
           <label>Email
             <input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
           </label>
+          <label>Role
+            <input value={form.role} readOnly disabled />
+          </label>
+          <label>Student ID
+            <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} />
+          </label>
         </FormShell>
       )}
-      <CrudTable columns={columns} rows={rows} onEdit={startEdit} onDelete={(id) => remove(id, 'student')} />
+      <CrudTable columns={columns} rows={rows} onEdit={startEdit} onDelete={(id) => remove(id, 'user')} />
     </>
   );
 }

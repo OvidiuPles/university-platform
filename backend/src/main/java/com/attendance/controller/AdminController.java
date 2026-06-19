@@ -37,42 +37,47 @@ public class AdminController {
     private final GradeService gradeService;
     private final AuthService authService;
 
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> listUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
+
     @GetMapping("/students")
     public ResponseEntity<List<User>> listStudents() {
         return ResponseEntity.ok(userRepository.findByRole(Role.STUDENT));
     }
 
-
-    @PutMapping("/students/{id}")
-    public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
-            User s = userRepository.findById(id)
-                    .filter(u -> u.getRole() == Role.STUDENT)
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
-            if (body.containsKey("studentId")) s.setStudentId(body.get("studentId"));
-            if (body.containsKey("name")) s.setName(body.get("name"));
-            if (body.containsKey("email")) s.setEmail(body.get("email"));
-            return ResponseEntity.ok(userRepository.save(s));
+            User u = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            if (body.containsKey("name")) u.setName(body.get("name"));
+            if (body.containsKey("email")) u.setEmail(body.get("email"));
+            if (body.containsKey("role")) u.setRole(Role.valueOf(body.get("role")));
+            if (body.containsKey("studentId")) {
+                String sid = body.get("studentId");
+                u.setStudentId(sid == null || sid.trim().isEmpty() ? null : sid.trim());
+            }
+            return ResponseEntity.ok(userRepository.save(u));
         } catch (DataIntegrityViolationException e) {
             return error("Student ID or e-mail already exists");
+        } catch (IllegalArgumentException e) {
+            return error("Invalid role");
         } catch (RuntimeException e) {
             return error(e.getMessage());
         }
     }
 
-    @DeleteMapping("/students/{id}")
-    public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
-            boolean isStudent = userRepository.findById(id)
-                    .map(u -> u.getRole() == Role.STUDENT)
-                    .orElse(false);
-            if (!isStudent) return error("Student not found");
+            if (!userRepository.existsById(id)) return error("User not found");
             userRepository.deleteById(id);
-            return ok("Student deleted");
+            return ok("User deleted");
         } catch (DataIntegrityViolationException e) {
-            return error("Cannot delete, student has related attendance or grades");
+            return error("Cannot delete, user has related attendance or grades");
         }
-
     }
 
     @GetMapping("/courses")
