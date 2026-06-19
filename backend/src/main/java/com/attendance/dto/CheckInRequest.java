@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CheckInRequest {
     private String sessionToken;
-    private String studentId;
+    private Long userId;
 }

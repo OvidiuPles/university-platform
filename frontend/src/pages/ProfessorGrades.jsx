@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 const GRADE_TYPES = ['Exam', 'Project', 'Homework', 'Quiz'];
 const SELECT_COURSE_PLACEHOLDER = '-- Select a Course --';
@@ -52,7 +53,7 @@ export default function ProfessorGrades() {
   }, [alert]);
 
   useEffect(() => {
-    fetch('/api/professor/courses')
+    apiFetch('/api/professor/courses')
       .then((r) => r.json())
       .then(setCourses)
       .catch(() => setAlert({ message: 'Could not load courses', type: 'danger' }));
@@ -69,8 +70,8 @@ export default function ProfessorGrades() {
   const loadCourseGrades = async (id) => {
     try {
       const [gradesRes, rateRes] = await Promise.all([
-        fetch(`/api/professor/grades?courseId=${id}`),
-        fetch(`/api/professor/attendance-rate?courseId=${id}`),
+        apiFetch(`/api/professor/grades?courseId=${id}`),
+        apiFetch(`/api/professor/attendance-rate?courseId=${id}`),
       ]);
       const gradesData = await gradesRes.json();
       if (gradesData.status === 'error') {
@@ -84,14 +85,14 @@ export default function ProfessorGrades() {
         const rateData = await rateRes.json();
         if (Array.isArray(rateData.students)) {
           rateByStudent = Object.fromEntries(
-            rateData.students.map((r) => [r.studentId, r.rate])
+            rateData.students.map((r) => [r.id, r.rate])
           );
         }
       }
 
       const studenData = (gradesData.students || []).map((s) => ({
         ...s,
-        attendanceRate: rateByStudent[s.studentId] ?? null,
+        attendanceRate: rateByStudent[s.id] ?? null,
       }));
       setStudents(studenData);
     } catch {
@@ -122,7 +123,7 @@ export default function ProfessorGrades() {
     }
     setSavingFor(studentId);
     try {
-      const res = await fetch('/api/professor/grades', {
+      const res = await apiFetch('/api/professor/grades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,7 +152,7 @@ export default function ProfessorGrades() {
   const deleteGrade = async (gradeId) => {
     if (!confirm('Delete this grade?')) return;
     try {
-      const res = await fetch(`/api/professor/grades/${gradeId}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/professor/grades/${gradeId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Failed to delete', type: 'danger' });
@@ -170,7 +171,6 @@ export default function ProfessorGrades() {
     return students.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
-        s.studentId.toLowerCase().includes(q) ||
         s.email.toLowerCase().includes(q)
     );
   }, [students, search]);
@@ -227,16 +227,16 @@ export default function ProfessorGrades() {
 
               <div className="grade-grid">
                 {filteredStudents.map((s) => {
-                  const draft = draftFor(s.studentId);
+                  const draft = draftFor(s.id);
                   return (
-                    <div className="grade-card" key={s.studentId}>
+                    <div className="grade-card" key={s.id}>
                       <div className="grade-card-head">
                         <div className="student-left">
                           <div className="student-avatar">{initials(s.name)}</div>
                           <div>
                             <div className="student-name">{s.name}</div>
                             <div className="student-meta">
-                              ID: {s.studentId} | {s.email}
+                              ID: {s.id} | {s.email}
                             </div>
                           </div>
                         </div>
@@ -283,15 +283,15 @@ export default function ProfessorGrades() {
                           placeholder="Grade"
                           className="grade-input-value"
                           value={draft.gradeValue}
-                          onChange={(e) => updateDraft(s.studentId, { gradeValue: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { gradeValue: e.target.value })}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') submitGrade(s.studentId);
+                            if (e.key === 'Enter') submitGrade(s.id);
                           }}
                         />
                         <select
                           className="grade-input-type"
                           value={draft.gradeType}
-                          onChange={(e) => updateDraft(s.studentId, { gradeType: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { gradeType: e.target.value })}
                         >
                           {GRADE_TYPES.map((t) => (
                             <option key={t} value={t}>
@@ -304,18 +304,18 @@ export default function ProfessorGrades() {
                           placeholder="Note (optional)"
                           className="grade-input-desc"
                           value={draft.description}
-                          onChange={(e) => updateDraft(s.studentId, { description: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { description: e.target.value })}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') submitGrade(s.studentId);
+                            if (e.key === 'Enter') submitGrade(s.id);
                           }}
                           maxLength={70}
                         />
                         <button
                           className="btn btn-primary btn-compact"
-                          onClick={() => submitGrade(s.studentId)}
-                          disabled={savingFor === s.studentId}
+                          onClick={() => submitGrade(s.id)}
+                          disabled={savingFor === s.id}
                         >
-                          {savingFor === s.studentId ? 'Saving...' : 'Add'}
+                          {savingFor === s.id ? 'Saving...' : 'Add'}
                         </button>
                       </div>
                     </div>

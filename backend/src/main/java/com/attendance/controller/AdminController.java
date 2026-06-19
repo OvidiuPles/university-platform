@@ -4,13 +4,15 @@ import com.attendance.dto.GradeRequest;
 import com.attendance.model.Attendance;
 import com.attendance.model.Course;
 import com.attendance.model.Grade;
+import com.attendance.model.Role;
 import com.attendance.model.Session;
-import com.attendance.model.Student;
+import com.attendance.model.User;
 import com.attendance.repository.AttendanceRepository;
 import com.attendance.repository.CourseRepository;
 import com.attendance.repository.GradeRepository;
 import com.attendance.repository.SessionRepository;
-import com.attendance.repository.StudentRepository;
+import com.attendance.repository.UserRepository;
+import com.attendance.service.AuthService;
 import com.attendance.service.GradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,60 +29,51 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class AdminController {
 
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final SessionRepository sessionRepository;
     private final AttendanceRepository attendanceRepository;
     private final GradeRepository gradeRepository;
     private final GradeService gradeService;
+    private final AuthService authService;
+
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> listUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
 
     @GetMapping("/students")
-    public ResponseEntity<List<Student>> listStudents() {
-        return ResponseEntity.ok(studentRepository.findAll());
+    public ResponseEntity<List<User>> listStudents() {
+        return ResponseEntity.ok(userRepository.findByRole(Role.STUDENT));
     }
 
-    @PostMapping("/students")
-    public ResponseEntity<?> createStudent(@RequestBody Map<String, String> body) {
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
-            Student s = new Student();
-            s.setStudentId(required(body, "studentId"));
-            s.setName(required(body, "name"));
-            s.setEmail(required(body, "email"));
-            s.setCreatedAt(LocalDateTime.now());
-            return ResponseEntity.ok(studentRepository.save(s));
+            User u = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            if (body.containsKey("name")) u.setName(body.get("name"));
+            if (body.containsKey("email")) u.setEmail(body.get("email"));
+            if (body.containsKey("role")) u.setRole(Role.valueOf(body.get("role")));
+            return ResponseEntity.ok(userRepository.save(u));
         } catch (DataIntegrityViolationException e) {
-            return error("Student ID or email already exists");
+            return error("E-mail already exists");
+        } catch (IllegalArgumentException e) {
+            return error("Invalid role");
         } catch (RuntimeException e) {
             return error(e.getMessage());
         }
     }
 
-    @PutMapping("/students/{id}")
-    public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
-            Student s = studentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
-            if (body.containsKey("studentId")) s.setStudentId(body.get("studentId"));
-            if (body.containsKey("name")) s.setName(body.get("name"));
-            if (body.containsKey("email")) s.setEmail(body.get("email"));
-            return ResponseEntity.ok(studentRepository.save(s));
+            if (!userRepository.existsById(id)) return error("User not found");
+            userRepository.deleteById(id);
+            return ok("User deleted");
         } catch (DataIntegrityViolationException e) {
-            return error("Student ID or e-mail already exists");
-        } catch (RuntimeException e) {
-            return error(e.getMessage());
+            return error("Cannot delete, user has related attendance or grades");
         }
-    }
-
-    @DeleteMapping("/students/{id}")
-    public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
-        try {
-            if (!studentRepository.existsById(id)) return error("Student not found");
-            studentRepository.deleteById(id);
-            return ok("Student deleted");
-        } catch (DataIntegrityViolationException e) {
-            return error("Cannot delete, student has related attendance or grades");
-        }
-
     }
 
     @GetMapping("/courses")
@@ -200,10 +193,10 @@ public class AdminController {
     public ResponseEntity<?> createAttendance(@RequestBody Map<String, Object> body) {
         try {
             Long sessionId = asLong(body.get("sessionId"));
-            String studentId = asString(body.get("studentId")); // personal ID, not the PK
+            Long studentId = asLong(body.get("studentId"));
             Session session = sessionRepository.findById(sessionId)
                     .orElseThrow(() -> new RuntimeException("Session not found!"));
-            Student student = studentRepository.findByStudentId(studentId)
+            User student = userRepository.findById(studentId)
                     .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
             Attendance a = new Attendance();
             a.setSession(session);
@@ -231,8 +224,8 @@ public class AdminController {
                 a.setSession(session);
             }
             if (body.containsKey("studentId")) {
-                String studenId = asString(body.get("studentId"));
-                Student student = studentRepository.findByStudentId(studenId)
+                Long studenId = asLong(body.get("studentId"));
+                User student = userRepository.findById(studenId)
                         .orElseThrow(() -> new RuntimeException("Student not found: " + studenId));
                 a.setStudent(student);
             }
@@ -275,7 +268,7 @@ public class AdminController {
             Grade g = gradeRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Grade not found!"));
             if (body.containsKey("studentId")) {
-                Student student = studentRepository.findByStudentId(asString(body.get("studentId")))
+                User student = userRepository.findById(asLong(body.get("studentId")))
                         .orElseThrow(() -> new RuntimeException("Student not found"));
                 g.setStudent(student);
             }

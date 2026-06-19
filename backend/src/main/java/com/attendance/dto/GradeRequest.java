@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 public class GradeRequest {
-    private String studentId;
+    private Long studentId;
     private Long courseId;
     private BigDecimal gradeValue;
     private String gradeType;

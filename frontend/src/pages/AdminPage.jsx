@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import '../styles/admin.css';
+import { apiFetch } from '../auth';
+import NavBar from '../components/NavBar';
 
 const SELECT_PLACEHODLER = '-- Select --';
 
 const TABS = [
-  { key: 'students', label: 'Students' },
+  { key: 'users', label: 'Users' },
   { key: 'courses', label: 'Courses' },
   { key: 'sessions', label: 'Sessions' },
   { key: 'attendance', label: 'Attendance' },
@@ -24,7 +25,7 @@ function toLocalInput(iso) {
 }
 
 export default function AdminPage() {
-  const [tab, setTab] = useState('students');
+  const [tab, setTab] = useState('users');
   const [alert, setAlert] = useState(null);
 
   useEffect(() => {
@@ -35,9 +36,7 @@ export default function AdminPage() {
 
   return (
     <div className="container">
-      <div className="header">
-        <h1>Admin Control</h1>
-      </div>
+      <NavBar />
       <div className="content admin-content">
         <div className="admin-tabs">
           {TABS.map((t) => (
@@ -57,7 +56,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {tab === 'students' && <StudentsSection setAlert={setAlert} />}
+        {tab === 'users' && <UsersSection setAlert={setAlert} />}
         {tab === 'courses' && <CoursesSection setAlert={setAlert} />}
         {tab === 'sessions' && <SessionsSection setAlert={setAlert} />}
         {tab === 'attendance' && <AttendanceSection setAlert={setAlert} />}
@@ -74,7 +73,7 @@ function useResource(endpoint, setAlert) {
   const reload = async () => {
     setLoading(true);
     try {
-      const res = await fetch(endpoint);
+      const res = await apiFetch(endpoint);
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Failed to load!', type: 'danger' });
@@ -98,7 +97,7 @@ function useResource(endpoint, setAlert) {
     const url = id ? `${endpoint}/${id}` : endpoint;
     const method = id ? 'PUT' : 'POST';
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -121,7 +120,7 @@ function useResource(endpoint, setAlert) {
   const remove = async (id, label) => {
     if (!confirm(`Delete this ${label}?`)) return;
     try {
-      const res = await fetch(`${endpoint}/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`${endpoint}/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok || data.status === 'error') {
         setAlert({ message: data.message || 'Delete failed', type: 'danger' });
@@ -194,9 +193,9 @@ function FormShell({ editingId, onCancel, onSubmit, children }) {
   );
 }
 
-function StudentsSection({ setAlert }) {
-  const { rows, save, remove } = useResource('/api/admin/students', setAlert);
-  const empty = { studentId: '', name: '', email: '' };
+function UsersSection({ setAlert }) {
+  const { rows, save, remove } = useResource('/api/admin/users', setAlert);
+  const empty = { name: '', email: '', role: 'STUDENT' };
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
 
@@ -206,37 +205,43 @@ function StudentsSection({ setAlert }) {
     setEditingId(null);
   };
   const submit = async () => {
-    const ok = await save(editingId, form);
+    const body = {
+      name: form.name,
+      email: form.email,
+    };
+    const ok = await save(editingId, body);
     if (ok) cancel();
   };
-  
+
   const startEdit = (r) => {
     setEditingId(r.id);
-    setForm({ studentId: r.studentId, name: r.name, email: r.email });
+    setForm({ name: r.name ?? '', email: r.email ?? '', role: r.role ?? 'STUDENT' });
   };
 
   const columns = [
     { key: 'id', label: 'ID' },
-    { key: 'studentId', label: 'Student ID' },
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
+    { key: 'role', label: 'Role' },
     { key: 'createdAt', label: 'Created', render: (r) => formatDate(r.createdAt) },
   ];
 
   return (
     <>
-      <FormShell editingId={editingId} onCancel={cancel} onSubmit={submit}>
-        <label>Student ID
-          <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required />
-        </label>
-        <label>Name
-          <input value={form.name} onChange={(e) => setField('name', e.target.value)} required />
-        </label>
-        <label>Email
-          <input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
-        </label>
-      </FormShell>
-      <CrudTable columns={columns} rows={rows} onEdit={startEdit} onDelete={(id) => remove(id, 'student')} />
+      {editingId && (
+        <FormShell editingId={editingId} onCancel={cancel} onSubmit={submit}>
+          <label>Name
+            <input value={form.name} onChange={(e) => setField('name', e.target.value)} required />
+          </label>
+          <label>Email
+            <input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
+          </label>
+          <label>Role
+            <input value={form.role} readOnly disabled />
+          </label>
+        </FormShell>
+      )}
+      <CrudTable columns={columns} rows={rows} onEdit={startEdit} onDelete={(id) => remove(id, 'user')} />
     </>
   );
 }
@@ -295,7 +300,7 @@ function SessionsSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/courses')
+    apiFetch('/api/admin/courses')
       .then((r) => r.json())
       .then((d) => setCourses(Array.isArray(d) ? d : []))
       .catch(() => {});
@@ -376,8 +381,8 @@ function AttendanceSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/sessions').then((r) => r.json()).then((d) => setSessions(Array.isArray(d) ? d : [])).catch(() => {});
-    fetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/sessions').then((r) => r.json()).then((d) => setSessions(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -388,7 +393,7 @@ function AttendanceSection({ setAlert }) {
   const submit = async () => {
     const body = {
       sessionId: Number(form.sessionId),
-      studentId: form.studentId,
+      studentId: Number(form.studentId),
     };
     if (form.checkInTime) body.checkInTime = form.checkInTime;
     const ok = await save(editingId, body);
@@ -398,7 +403,7 @@ function AttendanceSection({ setAlert }) {
     setEditingId(r.id);
     setForm({
       sessionId: r.session?.id ?? '',
-      studentId: r.student?.studentId ?? '',
+      studentId: r.student?.id ?? '',
       checkInTime: toLocalInput(r.checkInTime),
     });
   };
@@ -406,7 +411,7 @@ function AttendanceSection({ setAlert }) {
   const columns = [
     { key: 'id', label: 'ID' },
     { key: 'sessionToken', label: 'Session', render: (r) => r.session?.sessionToken ?? '-' },
-    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.studentId ?? '-' },
+    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.id ?? '-' },
     { key: 'studentName', label: 'Student', render: (r) => r.student?.name ?? '-' },
     { key: 'checkInTime', label: 'Check-in', render: (r) => formatDate(r.checkInTime) },
   ];
@@ -426,7 +431,7 @@ function AttendanceSection({ setAlert }) {
           <select value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required>
             <option value="">{SELECT_PLACEHODLER}</option>
             {students.map((s) => (
-              <option key={s.id} value={s.studentId}>{s.studentId} - {s.name}</option>
+              <option key={s.id} value={s.id}>{s.id} - {s.name}</option>
             ))}
           </select>
         </label>
@@ -448,8 +453,8 @@ function GradesSection({ setAlert }) {
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
-    fetch('/api/admin/courses').then((r) => r.json()).then((d) => setCourses(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/students').then((r) => r.json()).then((d) => setStudents(Array.isArray(d) ? d : [])).catch(() => {});
+    apiFetch('/api/admin/courses').then((r) => r.json()).then((d) => setCourses(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -459,7 +464,7 @@ function GradesSection({ setAlert }) {
   };
   const submit = async () => {
     const body = {
-      studentId: form.studentId,
+      studentId: Number(form.studentId),
       courseId: Number(form.courseId),
       gradeValue: form.gradeValue === '' ? null : Number(form.gradeValue),
       gradeType: form.gradeType,
@@ -471,7 +476,7 @@ function GradesSection({ setAlert }) {
   const startEdit = (r) => {
     setEditingId(r.id);
     setForm({
-      studentId: r.student?.studentId ?? '',
+      studentId: r.student?.id ?? '',
       courseId: r.course?.id ?? '',
       gradeValue: r.gradeValue ?? '',
       gradeType: r.gradeType ?? '',
@@ -481,7 +486,7 @@ function GradesSection({ setAlert }) {
 
   const columns = useMemo(() => [
     { key: 'id', label: 'ID' },
-    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.studentId ?? '-' },
+    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.id ?? '-' },
     { key: 'studentName', label: 'Student', render: (r) => r.student?.name ?? '-' },
     { key: 'courseCode', label: 'Course', render: (r) => r.course?.courseCode ?? '-' },
     { key: 'gradeValue', label: 'Grade', render: (r) => r.gradeValue != null ? Number(r.gradeValue).toFixed(2) : '-' },
@@ -497,7 +502,7 @@ function GradesSection({ setAlert }) {
           <select value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required>
             <option value="">{SELECT_PLACEHODLER}</option>
             {students.map((s) => (
-              <option key={s.id} value={s.studentId}>{s.studentId} - {s.name}</option>
+              <option key={s.id} value={s.id}>{s.id} - {s.name}</option>
             ))}
           </select>
         </label>

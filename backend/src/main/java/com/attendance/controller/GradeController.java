@@ -2,7 +2,9 @@ package com.attendance.controller;
 
 import com.attendance.dto.GradeRequest;
 import com.attendance.model.Grade;
-import com.attendance.repository.StudentRepository;
+import com.attendance.model.Role;
+import com.attendance.model.User;
+import com.attendance.repository.UserRepository;
 import com.attendance.service.GradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ import java.util.Map;
 public class GradeController {
 
     private final GradeService gradeService;
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
 
     @PostMapping("/professor/grades")
     public ResponseEntity<?> createGrade(@RequestBody GradeRequest request) {
@@ -48,21 +50,21 @@ public class GradeController {
     public ResponseEntity<?> getCourseGrades(@RequestParam Long courseId) {
         try {
             List<Grade> grades = gradeService.getGradesForCourse(courseId);
-            Map<String, Map<String, Object>> byStudent = new LinkedHashMap<>();
+            Map<Long, Map<String, Object>> byStudent = new LinkedHashMap<>();
 
-            studentRepository.findAll().stream()
+            userRepository.findByRole(Role.STUDENT).stream()
                     .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                     .forEach(student -> {
                         Map<String, Object> row = new LinkedHashMap<>();
-                        row.put("studentId", student.getStudentId());
+                        row.put("id", student.getId());
                         row.put("name", student.getName());
                         row.put("email", student.getEmail());
                         row.put("grades", new ArrayList<Map<String, Object>>());
-                        byStudent.put(student.getStudentId(), row);
+                        byStudent.put(student.getId(), row);
                     });
 
             for (Grade g : grades) {
-                Map<String, Object> studentRow = byStudent.get(g.getStudent().getStudentId());
+                Map<String, Object> studentRow = byStudent.get(g.getStudent().getId());
                 if (studentRow == null) continue;
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> list = (List<Map<String, Object>>) studentRow.get("grades");
@@ -80,9 +82,9 @@ public class GradeController {
     }
 
     @GetMapping("/student/grades")
-    public ResponseEntity<?> getStudentGrades(@RequestParam String studentId) {
+    public ResponseEntity<?> getStudentGrades(@RequestAttribute("currentUser") User user) {
         try {
-            List<Grade> grades = gradeService.getGradesForStudent(studentId);
+            List<Grade> grades = gradeService.getGradesForStudent(user.getId());
 
             Map<Long, Map<String, Object>> byCourse = new LinkedHashMap<>();
             for (Grade g : grades) {
@@ -108,7 +110,7 @@ public class GradeController {
             }
 
             Map<String, Object> response = new LinkedHashMap<>();
-            response.put("studentId", studentId);
+            response.put("id", user.getId());
             response.put("totalGrades", grades.size());
             response.put("courses", new ArrayList<>(byCourse.values()));
             return ResponseEntity.ok(response);
@@ -121,7 +123,7 @@ public class GradeController {
     private Map<String, Object> toGradeRow(Grade g) {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("id", g.getId());
-        row.put("studentId", g.getStudent().getStudentId());
+        row.put("studentId", g.getStudent().getId());
         row.put("studentName", g.getStudent().getName());
         row.put("courseId", g.getCourse().getId());
         row.put("courseCode", g.getCourse().getCourseCode());

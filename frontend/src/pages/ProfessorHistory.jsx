@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NavBar from '../components/NavBar';
+import { apiFetch } from '../auth';
 
 function initials(name) {
   return name
@@ -33,7 +34,7 @@ export default function ProfessorHistory() {
     setLoading(true);
 
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/professor/session/history?token=${encodeURIComponent(trimmed)}`
       );
       const payload = await res.json();
@@ -189,13 +190,13 @@ export default function ProfessorHistory() {
                 </div>
               ) : (
                 sortedStudents.map((s) => (
-                  <div className="student-item" key={s.studentId}>
+                  <div className="student-item" key={s.id}>
                     <div className="student-left">
                       <div className="student-avatar">{initials(s.name)}</div>
                       <div>
                         <div className="student-name">{s.name}</div>
                         <div className="student-meta">
-                          ID: {s.studentId} | {s.email}
+                          ID: {s.id} | {s.email}
                         </div>
                       </div>
                     </div>

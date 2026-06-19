@@ -5,9 +5,8 @@ import com.attendance.model.Attendance;
 import com.attendance.service.AttendanceService;
 import com.attendance.repository.SessionRepository;
 import com.attendance.repository.AttendanceRepository;
-import com.attendance.repository.StudentRepository;
-import com.attendance.model.Student;
 import com.attendance.model.Session;
+import com.attendance.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,6 @@ public class StudentController {
     private final AttendanceService attendanceService;
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
-    private final StudentRepository studentRepository;
     
     @PostMapping("/validate/checkin")
     public ResponseEntity<Map<String, String>> validateCheckin(@RequestBody CheckInRequest request) {
@@ -42,15 +40,15 @@ public class StudentController {
     }
 
     @PostMapping("/checkin")
-    public ResponseEntity<Map<String, String>> checkIn(@RequestBody CheckInRequest request) {
+    public ResponseEntity<Map<String, String>> checkIn(@RequestBody CheckInRequest request,
+                                                       @RequestAttribute("currentUser") User user) {
         try {
+            request.setUserId(user.getId());
             // check for duplicated requests
             Session session = sessionRepository.findBySessionToken(request.getSessionToken())
                     .orElseThrow(() -> new RuntimeException("Invalid session token"));
-            Student student = studentRepository.findByStudentId(request.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), student.getId()).isPresent()) {
+            if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), user.getId()).isPresent()) {
                 return ResponseEntity.ok(Map.of(
                         "status", "multiple-attempts",
                         "message", "Already checked in"
@@ -69,10 +67,10 @@ public class StudentController {
 
     @GetMapping("/attendance/history")
     public ResponseEntity<Map<String, Object>> getAttendanceHistory(
-            @RequestParam String studentId) {
+            @RequestAttribute("currentUser") User user) {
         try {
             List<Attendance> history =
-                    attendanceService.getStudentAttendanceHistory(studentId);
+                    attendanceService.getStudentAttendanceHistory(user.getId());
 
             long sessionsCount = sessionRepository.count();
 
