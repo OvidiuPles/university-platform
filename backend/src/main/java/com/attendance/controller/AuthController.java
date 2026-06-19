@@ -47,14 +47,6 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-        return authService.findByToken(extractToken(authHeader))
-                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(authPayload(user)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("status", "error", "message", "Not authenticated")));
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         authService.logout(extractToken(authHeader));
