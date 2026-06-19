@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../auth';
 import NavBar from '../components/NavBar';
-import '../styles/admin.css';
 
 const SELECT_PLACEHODLER = '-- Select --';
 
