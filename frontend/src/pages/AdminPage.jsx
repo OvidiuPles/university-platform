@@ -196,7 +196,7 @@ function FormShell({ editingId, onCancel, onSubmit, children }) {
 
 function UsersSection({ setAlert }) {
   const { rows, save, remove } = useResource('/api/admin/users', setAlert);
-  const empty = { name: '', email: '', role: 'STUDENT', studentId: '' };
+  const empty = { name: '', email: '', role: 'STUDENT' };
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
 
@@ -209,7 +209,6 @@ function UsersSection({ setAlert }) {
     const body = {
       name: form.name,
       email: form.email,
-      studentId: form.studentId || null,
     };
     const ok = await save(editingId, body);
     if (ok) cancel();
@@ -217,7 +216,7 @@ function UsersSection({ setAlert }) {
 
   const startEdit = (r) => {
     setEditingId(r.id);
-    setForm({ name: r.name ?? '', email: r.email ?? '', role: r.role ?? 'STUDENT', studentId: r.studentId ?? '' });
+    setForm({ name: r.name ?? '', email: r.email ?? '', role: r.role ?? 'STUDENT' });
   };
 
   const columns = [
@@ -225,7 +224,6 @@ function UsersSection({ setAlert }) {
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
     { key: 'role', label: 'Role' },
-    { key: 'studentId', label: 'Student ID' },
     { key: 'createdAt', label: 'Created', render: (r) => formatDate(r.createdAt) },
   ];
 
@@ -241,9 +239,6 @@ function UsersSection({ setAlert }) {
           </label>
           <label>Role
             <input value={form.role} readOnly disabled />
-          </label>
-          <label>Student ID
-            <input value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} />
           </label>
         </FormShell>
       )}
@@ -399,7 +394,7 @@ function AttendanceSection({ setAlert }) {
   const submit = async () => {
     const body = {
       sessionId: Number(form.sessionId),
-      studentId: form.studentId,
+      studentId: Number(form.studentId),
     };
     if (form.checkInTime) body.checkInTime = form.checkInTime;
     const ok = await save(editingId, body);
@@ -409,7 +404,7 @@ function AttendanceSection({ setAlert }) {
     setEditingId(r.id);
     setForm({
       sessionId: r.session?.id ?? '',
-      studentId: r.student?.studentId ?? '',
+      studentId: r.student?.id ?? '',
       checkInTime: toLocalInput(r.checkInTime),
     });
   };
@@ -417,7 +412,7 @@ function AttendanceSection({ setAlert }) {
   const columns = [
     { key: 'id', label: 'ID' },
     { key: 'sessionToken', label: 'Session', render: (r) => r.session?.sessionToken ?? '-' },
-    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.studentId ?? '-' },
+    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.id ?? '-' },
     { key: 'studentName', label: 'Student', render: (r) => r.student?.name ?? '-' },
     { key: 'checkInTime', label: 'Check-in', render: (r) => formatDate(r.checkInTime) },
   ];
@@ -437,7 +432,7 @@ function AttendanceSection({ setAlert }) {
           <select value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required>
             <option value="">{SELECT_PLACEHODLER}</option>
             {students.map((s) => (
-              <option key={s.id} value={s.studentId}>{s.studentId} - {s.name}</option>
+              <option key={s.id} value={s.id}>{s.id} - {s.name}</option>
             ))}
           </select>
         </label>
@@ -470,7 +465,7 @@ function GradesSection({ setAlert }) {
   };
   const submit = async () => {
     const body = {
-      studentId: form.studentId,
+      studentId: Number(form.studentId),
       courseId: Number(form.courseId),
       gradeValue: form.gradeValue === '' ? null : Number(form.gradeValue),
       gradeType: form.gradeType,
@@ -482,7 +477,7 @@ function GradesSection({ setAlert }) {
   const startEdit = (r) => {
     setEditingId(r.id);
     setForm({
-      studentId: r.student?.studentId ?? '',
+      studentId: r.student?.id ?? '',
       courseId: r.course?.id ?? '',
       gradeValue: r.gradeValue ?? '',
       gradeType: r.gradeType ?? '',
@@ -492,7 +487,7 @@ function GradesSection({ setAlert }) {
 
   const columns = useMemo(() => [
     { key: 'id', label: 'ID' },
-    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.studentId ?? '-' },
+    { key: 'studentId', label: 'Student ID', render: (r) => r.student?.id ?? '-' },
     { key: 'studentName', label: 'Student', render: (r) => r.student?.name ?? '-' },
     { key: 'courseCode', label: 'Course', render: (r) => r.course?.courseCode ?? '-' },
     { key: 'gradeValue', label: 'Grade', render: (r) => r.gradeValue != null ? Number(r.gradeValue).toFixed(2) : '-' },
@@ -508,7 +503,7 @@ function GradesSection({ setAlert }) {
           <select value={form.studentId} onChange={(e) => setField('studentId', e.target.value)} required>
             <option value="">{SELECT_PLACEHODLER}</option>
             {students.map((s) => (
-              <option key={s.id} value={s.studentId}>{s.studentId} - {s.name}</option>
+              <option key={s.id} value={s.id}>{s.id} - {s.name}</option>
             ))}
           </select>
         </label>

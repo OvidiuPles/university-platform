@@ -4,7 +4,6 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
-    student_id VARCHAR(50) UNIQUE,
     token VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -54,11 +53,11 @@ INSERT INTO courses (course_code, course_name, professor_name) VALUES
 ('CS301', 'Database Systems', 'Dr. Johnson');
 
 -- passwords: admin / proffesor / student (all students)
-INSERT INTO users (name, email, password_hash, role, student_id) VALUES
-('Admin User', 'admin', '$2a$10$lhMBGpSbEea7kOsdC25xDO655mH2ZVkCFXoCLaSa0N4mgcvkUqlFu', 'ADMIN', NULL),
-('Dr. Popescu', 'professor', '$2a$10$01hwtlCdQKjpXYmRFcYrau6EW/PUriMe2.rbmvS3evlyz98XYuYwG', 'PROFESSOR', NULL),
-('Alice Pop', 'student', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S001'),
-('Ion Popescu', 'ion@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S002'),
-('Andrei Vanic', 'andrei@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S003'),
-('David Brumaru', 'david@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S004'),
-('Evea Stan', 'eva@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT', 'S005');
+INSERT INTO users (name, email, password_hash, role) VALUES
+('Admin User', 'admin', '$2a$10$lhMBGpSbEea7kOsdC25xDO655mH2ZVkCFXoCLaSa0N4mgcvkUqlFu', 'ADMIN'),
+('Dr. Popescu', 'professor', '$2a$10$01hwtlCdQKjpXYmRFcYrau6EW/PUriMe2.rbmvS3evlyz98XYuYwG', 'PROFESSOR'),
+('Alice Pop', 'student', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT'),
+('Ion Popescu', 'ion@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT'),
+('Andrei Vanic', 'andrei@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT'),
+('David Brumaru', 'david@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT'),
+('Evea Stan', 'eva@university', '$2a$10$E50ONLQsQ3Ckv8C4bLAGMuSbO1mAfQ7EDavGAHneRYDYojFpL3SW.', 'STUDENT');

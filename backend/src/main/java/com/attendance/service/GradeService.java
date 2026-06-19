@@ -33,7 +33,7 @@ public class GradeService {
         validateGradeValue(request.getGradeValue());
         validateGradeType(request.getGradeType());
 
-        User student = userRepository.findByStudentId(request.getStudentId())
+        User student = userRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found: " + request.getStudentId()));
         if (student.getRole() != Role.STUDENT) {
             throw new RuntimeException("User is not a student" + request.getStudentId());
@@ -51,7 +51,7 @@ public class GradeService {
 
         Grade saved = gradeRepository.save(grade);
         log.info("Created grade {} for student {} in course {}",
-                saved.getGradeValue(), student.getStudentId(), course.getCourseCode());
+                saved.getGradeValue(), student.getId(), course.getCourseCode());
         return saved;
     }
 

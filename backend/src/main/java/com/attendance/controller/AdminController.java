@@ -55,13 +55,9 @@ public class AdminController {
             if (body.containsKey("name")) u.setName(body.get("name"));
             if (body.containsKey("email")) u.setEmail(body.get("email"));
             if (body.containsKey("role")) u.setRole(Role.valueOf(body.get("role")));
-            if (body.containsKey("studentId")) {
-                String sid = body.get("studentId");
-                u.setStudentId(sid == null || sid.trim().isEmpty() ? null : sid.trim());
-            }
             return ResponseEntity.ok(userRepository.save(u));
         } catch (DataIntegrityViolationException e) {
-            return error("Student ID or e-mail already exists");
+            return error("E-mail already exists");
         } catch (IllegalArgumentException e) {
             return error("Invalid role");
         } catch (RuntimeException e) {
@@ -197,10 +193,10 @@ public class AdminController {
     public ResponseEntity<?> createAttendance(@RequestBody Map<String, Object> body) {
         try {
             Long sessionId = asLong(body.get("sessionId"));
-            String studentId = asString(body.get("studentId")); // personal ID, not the PK
+            Long studentId = asLong(body.get("studentId"));
             Session session = sessionRepository.findById(sessionId)
                     .orElseThrow(() -> new RuntimeException("Session not found!"));
-            User student = userRepository.findByStudentId(studentId)
+            User student = userRepository.findById(studentId)
                     .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
             Attendance a = new Attendance();
             a.setSession(session);
@@ -228,8 +224,8 @@ public class AdminController {
                 a.setSession(session);
             }
             if (body.containsKey("studentId")) {
-                String studenId = asString(body.get("studentId"));
-                User student = userRepository.findByStudentId(studenId)
+                Long studenId = asLong(body.get("studentId"));
+                User student = userRepository.findById(studenId)
                         .orElseThrow(() -> new RuntimeException("Student not found: " + studenId));
                 a.setStudent(student);
             }
@@ -272,7 +268,7 @@ public class AdminController {
             Grade g = gradeRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Grade not found!"));
             if (body.containsKey("studentId")) {
-                User student = userRepository.findByStudentId(asString(body.get("studentId")))
+                User student = userRepository.findById(asLong(body.get("studentId")))
                         .orElseThrow(() -> new RuntimeException("Student not found"));
                 g.setStudent(student);
             }

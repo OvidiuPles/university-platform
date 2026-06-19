@@ -11,7 +11,6 @@ export default function Login() {
     email: '',
     password: '',
     role: 'STUDENT',
-    studentId: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -31,7 +30,6 @@ export default function Login() {
             email: form.email,
             password: form.password,
             role: form.role,
-            studentId: form.role === 'STUDENT' ? form.studentId : null,
           }
         : { email: form.email, password: form.password };
 
@@ -112,17 +110,6 @@ export default function Login() {
                   <option value="PROFESSOR">Professor</option>
                 </select>
               </div>
-
-              {form.role === 'STUDENT' && (
-                <div className="form-group tall">
-                  <label htmlFor="studentId">Student ID (e.g. S001)</label>
-                  <input
-                    id="studentId"
-                    value={form.studentId}
-                    onChange={(e) => setField('studentId', e.target.value)}
-                  />
-                </div>
-              )}
             </>
           )}
 

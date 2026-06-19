@@ -33,9 +33,6 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @Column(name = "student_id", unique = true)
-    private String studentId;
-
     @JsonIgnore
     @Column(name = "token")
     private String token;

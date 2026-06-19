@@ -95,7 +95,7 @@ public class ProfessorController {
             List<Map<String, Object>> students = new java.util.ArrayList<>();
             for (var a : attendanceList) {
                 Map<String, Object> row = new java.util.LinkedHashMap<>();
-                row.put("studentId",   a.getStudent().getStudentId());
+                row.put("id",          a.getStudent().getId());
                 row.put("name",        a.getStudent().getName());
                 row.put("email",       a.getStudent().getEmail());
                 row.put("checkInTime", a.getCheckInTime());
@@ -144,7 +144,7 @@ public class ProfessorController {
                                     .divide(BigDecimal.valueOf(totalSessions), 2, RoundingMode.HALF_UP);
 
                         Map<String, Object> row = new LinkedHashMap<>();
-                        row.put("studentId", student.getStudentId());
+                        row.put("id", student.getId());
                         row.put("rate", rate);
                         return row;
                     })

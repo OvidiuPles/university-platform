@@ -74,7 +74,7 @@ public class AttendanceService {
 
             if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), student.getId()).isPresent()) {
                 log.warn("Duplicate attendance attempt for student: {} in session: {}",
-                         student.getStudentId(), session.getId());
+                         student.getId(), session.getId());
                 return;
             }
 
@@ -97,7 +97,7 @@ public class AttendanceService {
             
             messagingTemplate.convertAndSend("/topic/attendance/" + session.getId(), update);
             
-            log.info("Check-in processed successfully for student: {}", student.getStudentId());
+            log.info("Check-in processed successfully for student: {}", student.getId());
             
         } catch (Exception e) {
             log.error("Error processing check-in: {}", e.getMessage(), e);

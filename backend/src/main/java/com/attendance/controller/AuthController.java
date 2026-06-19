@@ -30,8 +30,7 @@ public class AuthController {
                     body.get("name"),
                     body.get("email"),
                     body.get("password"),
-                    role,
-                    body.get("studentId"));
+                    role);
             return ResponseEntity.ok(authPayload(user));
         } catch (RuntimeException e) {
             return error(e.getMessage());
@@ -83,7 +82,6 @@ public class AuthController {
         payload.put("name", user.getName());
         payload.put("email", user.getEmail());
         payload.put("role", user.getRole().name());
-        payload.put("studentId", user.getStudentId());
         return payload;
     }
 

@@ -100,7 +100,6 @@ export default function StudentCheckin() {
             <div className="form-group tall">
               <p>
                 Check in as <strong>{student?.name}</strong>
-                {student?.studentId ? ` (${student.studentId})` : ''}
               </p>
             </div>
 

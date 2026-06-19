@@ -190,13 +190,13 @@ export default function ProfessorHistory() {
                 </div>
               ) : (
                 sortedStudents.map((s) => (
-                  <div className="student-item" key={s.studentId}>
+                  <div className="student-item" key={s.id}>
                     <div className="student-left">
                       <div className="student-avatar">{initials(s.name)}</div>
                       <div>
                         <div className="student-name">{s.name}</div>
                         <div className="student-meta">
-                          ID: {s.studentId} | {s.email}
+                          ID: {s.id} | {s.email}
                         </div>
                       </div>
                     </div>

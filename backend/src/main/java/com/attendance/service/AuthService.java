@@ -19,7 +19,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public User register(String name, String email, String rawPassword, Role role, String studentId) {
+    public User register(String name, String email, String rawPassword, Role role) {
         if (name == null || name.trim().isEmpty()) throw new RuntimeException("Name is required!");
         if (email == null || email.trim().isEmpty()) throw new RuntimeException("Email is required!");
         if (rawPassword == null || rawPassword.length() < 6) {
@@ -32,8 +32,6 @@ public class AuthService {
         user.setEmail(email.trim().toLowerCase());
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.setRole(role);
-        user.setStudentId(role == Role.STUDENT && studentId != null && !studentId.isBlank()
-                ? studentId.trim() : null);
         user.setCreatedAt(LocalDateTime.now());
         try {
             return userRepository.save(user);

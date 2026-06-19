@@ -85,14 +85,14 @@ export default function ProfessorGrades() {
         const rateData = await rateRes.json();
         if (Array.isArray(rateData.students)) {
           rateByStudent = Object.fromEntries(
-            rateData.students.map((r) => [r.studentId, r.rate])
+            rateData.students.map((r) => [r.id, r.rate])
           );
         }
       }
 
       const studenData = (gradesData.students || []).map((s) => ({
         ...s,
-        attendanceRate: rateByStudent[s.studentId] ?? null,
+        attendanceRate: rateByStudent[s.id] ?? null,
       }));
       setStudents(studenData);
     } catch {
@@ -171,7 +171,6 @@ export default function ProfessorGrades() {
     return students.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
-        s.studentId.toLowerCase().includes(q) ||
         s.email.toLowerCase().includes(q)
     );
   }, [students, search]);
@@ -228,16 +227,16 @@ export default function ProfessorGrades() {
 
               <div className="grade-grid">
                 {filteredStudents.map((s) => {
-                  const draft = draftFor(s.studentId);
+                  const draft = draftFor(s.id);
                   return (
-                    <div className="grade-card" key={s.studentId}>
+                    <div className="grade-card" key={s.id}>
                       <div className="grade-card-head">
                         <div className="student-left">
                           <div className="student-avatar">{initials(s.name)}</div>
                           <div>
                             <div className="student-name">{s.name}</div>
                             <div className="student-meta">
-                              ID: {s.studentId} | {s.email}
+                              ID: {s.id} | {s.email}
                             </div>
                           </div>
                         </div>
@@ -284,15 +283,15 @@ export default function ProfessorGrades() {
                           placeholder="Grade"
                           className="grade-input-value"
                           value={draft.gradeValue}
-                          onChange={(e) => updateDraft(s.studentId, { gradeValue: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { gradeValue: e.target.value })}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') submitGrade(s.studentId);
+                            if (e.key === 'Enter') submitGrade(s.id);
                           }}
                         />
                         <select
                           className="grade-input-type"
                           value={draft.gradeType}
-                          onChange={(e) => updateDraft(s.studentId, { gradeType: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { gradeType: e.target.value })}
                         >
                           {GRADE_TYPES.map((t) => (
                             <option key={t} value={t}>
@@ -305,18 +304,18 @@ export default function ProfessorGrades() {
                           placeholder="Note (optional)"
                           className="grade-input-desc"
                           value={draft.description}
-                          onChange={(e) => updateDraft(s.studentId, { description: e.target.value })}
+                          onChange={(e) => updateDraft(s.id, { description: e.target.value })}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') submitGrade(s.studentId);
+                            if (e.key === 'Enter') submitGrade(s.id);
                           }}
                           maxLength={70}
                         />
                         <button
                           className="btn btn-primary btn-compact"
-                          onClick={() => submitGrade(s.studentId)}
-                          disabled={savingFor === s.studentId}
+                          onClick={() => submitGrade(s.id)}
+                          disabled={savingFor === s.id}
                         >
-                          {savingFor === s.studentId ? 'Saving...' : 'Add'}
+                          {savingFor === s.id ? 'Saving...' : 'Add'}
                         </button>
                       </div>
                     </div>
