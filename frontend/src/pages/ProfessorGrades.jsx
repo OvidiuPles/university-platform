@@ -171,7 +171,8 @@ export default function ProfessorGrades() {
     return students.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
-        s.email.toLowerCase().includes(q)
+        s.email.toLowerCase().includes(q) ||
+        String(s.id).includes(q)
     );
   }, [students, search]);
 
