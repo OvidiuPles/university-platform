@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"${app.base-url}", "http://localhost:8090", "http://localhost:8080"})
 public class GradeController {
 
     private final GradeService gradeService;

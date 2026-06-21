@@ -18,7 +18,7 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/api/student")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"${app.base-url}", "http://localhost:8090", "http://localhost:8080"})
 public class StudentController {
     
     private final AttendanceService attendanceService;
