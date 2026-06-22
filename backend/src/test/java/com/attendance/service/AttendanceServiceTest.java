@@ -37,8 +37,6 @@ class AttendanceServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private RabbitTemplate rabbitTemplate;
-    @Mock
     private SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks
@@ -83,14 +81,6 @@ class AttendanceServiceTest {
 
         assertThatThrownBy(() -> attendanceService.validateCheckIn(request()))
                 .hasMessage("This QR code has expired");
-    }
-
-    @Test
-    void queueCheckInPublishesToAttendanceQueue() {
-        CheckInRequest req = request();
-
-        attendanceService.queueCheckIn(req);
-        verify(rabbitTemplate).convertAndSend(RabbitMQConfig.ATTENDANCE_QUEUE, req);
     }
 
     @Test

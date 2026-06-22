@@ -29,7 +29,6 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
-    private final RabbitTemplate rabbitTemplate;
     private final SimpMessagingTemplate messagingTemplate;
     
 
@@ -46,62 +45,50 @@ public class AttendanceService {
         }
     }
 
-    public void queueCheckIn(CheckInRequest request) {
-        log.info("Queuing check-in request for user: {} in session token: {}",
-                 request.getUserId(), request.getSessionToken());
-        rabbitTemplate.convertAndSend(RabbitMQConfig.ATTENDANCE_QUEUE, request);
-    }
-
-    @RabbitListener(queues = RabbitMQConfig.ATTENDANCE_QUEUE)
     @Transactional
     public void processCheckIn(CheckInRequest request) {
-        try {
-            log.info("Processing check-in for user: {}", request.getUserId());
+        log.info("Processing check-in for user: {}", request.getUserId());
 
-            Session session = sessionRepository.findBySessionToken(request.getSessionToken())
-                .orElseThrow(() -> new RuntimeException("Invalid session token"));
+        Session session = sessionRepository.findBySessionToken(request.getSessionToken())
+            .orElseThrow(() -> new RuntimeException("Invalid session token"));
 
-            if (!session.getIsActive()) {
-                throw new RuntimeException("Session is not active");
-            }
-
-            if (session.isExpired()) {
-                throw new RuntimeException("Session has expired");
-            }
-
-            User student = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-            if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), student.getId()).isPresent()) {
-                log.warn("Duplicate attendance attempt for student: {} in session: {}",
-                         student.getId(), session.getId());
-                return;
-            }
-
-            Attendance attendance = new Attendance();
-            attendance.setSession(session);
-            attendance.setStudent(student);
-            attendance.setCheckInTime(LocalDateTime.now());
-
-            attendanceRepository.save(attendance);
-
-            long totalCount = attendanceRepository.countBySessionId(session.getId());
-
-            AttendanceUpdate update = new AttendanceUpdate(
-                session.getId(),
-                student.getName(),
-                totalCount,
-                student.getName() + " checked in successfully",
-                attendance.getCheckInTime()
-            );
-            
-            messagingTemplate.convertAndSend("/topic/attendance/" + session.getId(), update);
-            
-            log.info("Check-in processed successfully for student: {}", student.getId());
-            
-        } catch (Exception e) {
-            log.error("Error processing check-in: {}", e.getMessage(), e);
+        if (!session.getIsActive()) {
+            throw new RuntimeException("Session is not active");
         }
+
+        if (session.isExpired()) {
+            throw new RuntimeException("Session has expired");
+        }
+
+        User student = userRepository.findById(request.getUserId())
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        if (attendanceRepository.findBySessionIdAndStudentId(session.getId(), student.getId()).isPresent()) {
+            log.warn("Duplicate attendance attempt for student: {} in session: {}",
+                     student.getId(), session.getId());
+            return;
+        }
+
+        Attendance attendance = new Attendance();
+        attendance.setSession(session);
+        attendance.setStudent(student);
+        attendance.setCheckInTime(LocalDateTime.now());
+
+        attendanceRepository.save(attendance);
+
+        long totalCount = attendanceRepository.countBySessionId(session.getId());
+
+        AttendanceUpdate update = new AttendanceUpdate(
+            session.getId(),
+            student.getName(),
+            totalCount,
+            student.getName() + " checked in successfully",
+            attendance.getCheckInTime()
+        );
+
+        messagingTemplate.convertAndSend("/topic/attendance/" + session.getId(), update);
+
+        log.info("Check-in processed successfully for student: {}", student.getId());
     }
 
     public Map.Entry<Session, List<Attendance>> getSessionAttendanceByToken(String sessionToken) {

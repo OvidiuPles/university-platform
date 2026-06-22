@@ -54,7 +54,7 @@ public class StudentController {
                         "message", "Already checked in"
                 ));
             }
-            attendanceService.queueCheckIn(request);
+            attendanceService.processCheckIn(request);
             return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Check-in submitted successfully"
