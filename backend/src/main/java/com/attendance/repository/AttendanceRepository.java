@@ -18,5 +18,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT COUNT(a) FROM Attendance a WHERE a.session.id = :sessionId")
     long countBySessionId(Long sessionId);
     
-    List<Attendance> findByStudentId(Long studentId);
+    List<Attendance> findByStudentIdOrderByCheckInTimeDesc(Long studentId);
 }

@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: attendance_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      TZ: Europe/Bucharest
+      PGTZ: Europe/Bucharest
     ports:
       - "5432:5432"
     volumes:
@@ -28,6 +30,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
+      TZ: Europe/Bucharest
     ports:
       - "5050:80"
     volumes:
@@ -44,6 +47,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+      TZ: Europe/Bucharest
     ports:
       - "5672:5672"
       - "15672:15672" # UI
@@ -70,7 +74,8 @@ services:
       SPRING_RABBITMQ_PASSWORD: guest
       APP_BASE_URL: http://localhost:3000  # used for QR generation
       APP_CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8090,http://localhost:8080"
-    ports:
+      TZ: Europe/Bucharest
+      ports:
       - "8090:8080"
     depends_on:
       postgres:
@@ -88,6 +93,8 @@ services:
       args:
         VITE_UNIVERSITY_NAME: "University Platform"
     container_name: attendance-frontend
+    environment:
+      TZ: Europe/Bucharest
     ports:
       - "3000:80"
     depends_on:

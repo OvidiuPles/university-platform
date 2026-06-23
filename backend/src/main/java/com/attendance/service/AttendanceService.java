@@ -113,6 +113,6 @@ public class AttendanceService {
     }
 
     public List<Attendance> getStudentAttendanceHistory(Long userId) {
-        return attendanceRepository.findByStudentId(userId);
+        return attendanceRepository.findByStudentIdOrderByCheckInTimeDesc(userId);
     }
 }

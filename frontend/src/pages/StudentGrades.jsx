@@ -78,15 +78,13 @@ export default function StudentGrades() {
                 </div>
               </div>
 
-              <h2 className="section-title">Per-Course Grades</h2>
-
               <div className="course-grade-list">
                 {data.courses.map((course) => (
                   <div className="course-grade-card" key={course.courseId}>
                     <div className="course-grade-head">
                       <div>
                         <div className="course-grade-title">
-                          {course.courseCode} - {course.courseName}
+                          {course.courseName}
                         </div>
                         <div className="course-grade-prof">Professor: {course.professorName}</div>
                       </div>

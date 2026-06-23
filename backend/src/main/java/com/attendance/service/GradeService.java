@@ -71,7 +71,7 @@ public class GradeService {
     }
 
     public List<Grade> getGradesForStudent(Long userId) {
-        return gradeRepository.findByStudentIdOrderByCourse_CourseCodeAscCreatedAtDesc(userId);
+        return gradeRepository.findByStudentIdOrderByCreatedAtDesc(userId);
     }
 
     private void validateGradeValue(BigDecimal value) {
