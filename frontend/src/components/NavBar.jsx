@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getAuth, clearAuth, apiFetch } from '../auth';
 
@@ -7,6 +8,9 @@ export default function NavBar() {
   const auth = getAuth();
   const isStudent = pathname.startsWith('/student') || pathname.startsWith('/checkin');
   const isAdmin = pathname.startsWith('/admin');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = () => setMenuOpen(false);
 
   const logout = async () => {
     try {
@@ -23,7 +27,18 @@ export default function NavBar() {
           <span className="brand-text">{import.meta.env.VITE_UNIVERSITY_NAME || 'University Platform'}</span>
         </div>
 
-        <div className="navbar-links">
+        <button
+          className={'navbar-toggle' + (menuOpen ? ' open' : '')}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div className={'navbar-links' + (menuOpen ? ' open' : '')} onClick={closeMenu}>
           {isAdmin ? null : isStudent ? (
             <div className="nav-group">
               <NavLink to="/student/history" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>

@@ -26,7 +26,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${app.base-url}", "http://localhost:8090", "http://localhost:8080"})
 public class AdminController {
 
     private final UserRepository userRepository;

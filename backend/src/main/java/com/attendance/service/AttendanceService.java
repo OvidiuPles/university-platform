@@ -33,7 +33,7 @@ public class AttendanceService {
     private final SimpMessagingTemplate messagingTemplate;
     
 
-    public void validateCheckIn(CheckInRequest request) {
+    public Session validateCheckIn(CheckInRequest request) {
         Session session = sessionRepository.findBySessionToken(request.getSessionToken())
             .orElseThrow(() -> new RuntimeException("Invalid QR code"));
 
@@ -44,6 +44,7 @@ public class AttendanceService {
         if (session.isExpired()) {
             throw new RuntimeException("This QR code has expired");
         }
+        return session;
     }
 
     public void queueCheckIn(CheckInRequest request) {
@@ -112,6 +113,6 @@ public class AttendanceService {
     }
 
     public List<Attendance> getStudentAttendanceHistory(Long userId) {
-        return attendanceRepository.findByStudentId(userId);
+        return attendanceRepository.findByStudentIdOrderByCheckInTimeDesc(userId);
     }
 }

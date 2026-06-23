@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import { apiFetch } from '../auth';
+
+const SELECT_COURSE_PLACEHOLDER = '-- Select a Course --';
 
 function initials(name) {
   return name
@@ -22,9 +24,53 @@ export default function ProfessorHistory() {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sortKey, setSortKey] = useState('name-asc');
+  const [courses, setCourses] = useState([]);
+  const [courseId, setCourseId] = useState('');
+  const [sessions, setSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
 
-  const lookupSession = async () => {
-    const trimmed = token.trim();
+  useEffect(() => {
+    apiFetch('/api/professor/courses')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load courses');
+        return res.json();
+      })
+      .then(setCourses)
+      .catch((e) => {
+        console.error(e);
+        setAlert({ message: 'Error loading courses', type: 'danger' });
+      });
+  }, []);
+
+  const selectCourse = async (id) => {
+    setCourseId(id);
+    setSessions([]);
+    setData(null);
+    if (!id) return;
+
+    setSessionsLoading(true);
+    try {
+      const res = await apiFetch(
+        `/api/professor/course/sessions?courseId=${encodeURIComponent(id)}`
+      );
+      const payload = await res.json();
+      setSessionsLoading(false);
+      if (payload.status === 'error') {
+        setAlert({ message: payload.message, type: 'danger' });
+        return;
+      }
+      setSessions(payload.sessions);
+    } catch (e) {
+      setSessionsLoading(false);
+      setAlert({
+        message: 'Connection error. Please check your network and try again.',
+        type: 'danger',
+      });
+    }
+  };
+
+  const lookupSession = async (sessionToken) => {
+    const trimmed = (sessionToken ?? token).trim();
     if (!trimmed) {
       setAlert({ message: 'Please paste a session token first.', type: 'danger' });
       return;
@@ -59,6 +105,8 @@ export default function ProfessorHistory() {
     setAlert(null);
     setLoading(false);
     setData(null);
+    setCourseId('');
+    setSessions([]);
   };
 
   const sortedStudents = (() => {
@@ -105,14 +153,73 @@ export default function ProfessorHistory() {
                 if (e.key === 'Enter') lookupSession();
               }}
             />
-            <button className="btn btn-primary" onClick={lookupSession}>
+            <button className="btn btn-primary" onClick={() => lookupSession()}>
               Look Up
             </button>
             <button className="btn btn-secondary" onClick={clearAll}>
               Clear
             </button>
           </div>
+
+          <div className="form-group" style={{ marginTop: 18 }}>
+            <label htmlFor="courseSelect">Or see sessions by course:</label>
+            <select
+              id="courseSelect"
+              value={courseId}
+              onChange={(e) => selectCourse(e.target.value)}
+            >
+              <option value="">{SELECT_COURSE_PLACEHOLDER}</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.courseCode} - {c.courseName}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {sessionsLoading && (
+          <div>
+            <div className="loader"></div>
+            <p className="loading-text">Loading sessions...</p>
+          </div>
+        )}
+
+        {courseId && !sessionsLoading && !data && (
+          <div className="session-controls">
+            <h2>Sessions</h2>
+            {sessions.length === 0 ? (
+              <div className="empty-state">
+                <h3>No sessions found</h3>
+                <p>This course has no sessions yet</p>
+              </div>
+            ) : (
+              sessions.map((s) => (
+                <div className="student-item" key={s.sessionToken}>
+                  <div className="student-left">
+                    <div>
+                      <div className="student-name">
+                        {formatDateTime(s.startTime)}
+                      </div>
+                      <div className="student-meta">
+                        {s.totalAttendance} present
+                      </div>
+                    </div>
+                  </div>
+                  <div className="student-right">
+                    <button
+                      className="btn btn-primary"
+                      style={{ marginTop: 8 }}
+                      onClick={() => lookupSession(s.sessionToken)}
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {alert && (
           <div className={`alert alert-${alert.type}`}>{alert.message}</div>
@@ -127,6 +234,15 @@ export default function ProfessorHistory() {
 
         {data && (
           <div>
+            {sessions.length > 0 && (
+              <button
+                className="btn btn-secondary"
+                style={{ marginBottom: 16 }}
+                onClick={() => setData(null)}
+              >
+                Back to all sessions
+              </button>
+            )}
             <div className="session-info" style={{ marginBottom: 24 }}>
               <h3 style={{ marginBottom: 14 }}>Session Details</h3>
               <div className="info-row">

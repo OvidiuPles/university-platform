@@ -28,7 +28,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/professor")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${app.base-url}", "http://localhost:8090", "http://localhost:8080"})
 public class ProfessorController {
     
     private final SessionService sessionService;
@@ -44,6 +43,34 @@ public class ProfessorController {
     @GetMapping("/courses")
     public ResponseEntity<List<Course>> getCourses() {
         return ResponseEntity.ok(courseRepository.findAll());
+    }
+
+    @GetMapping("/course/sessions")
+    public ResponseEntity<?> getCourseSessions(@RequestParam Long courseId) {
+        try {
+            if (!courseRepository.existsById(courseId)) {
+                throw new RuntimeException("course not found");
+            }
+            List<Map<String, Object>> sessions = sessionRepository.findByCourseId(courseId).stream()
+                    .sorted((a, b) -> b.getStartTime().compareTo(a.getStartTime()))
+                    .map(session -> {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("sessionToken",    session.getSessionToken());
+                        row.put("startTime",       session.getStartTime());
+                        row.put("expirationTime",  session.getExpirationTime());
+                        row.put("isActive",        session.getIsActive());
+                        row.put("totalAttendance", attendanceRepository.countBySessionId(session.getId()));
+                        return row;
+                    })
+                    .toList();
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("courseId", courseId);
+            response.put("sessions", sessions);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("status", "error", "message", e.getMessage()));
+        }
     }
 
     @GetMapping("/session/config")
