@@ -69,6 +69,7 @@ services:
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
       APP_BASE_URL: http://localhost:3000  # used for QR generation
+      APP_CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:8090,http://localhost:8080"
     ports:
       - "8090:8080"
     depends_on:

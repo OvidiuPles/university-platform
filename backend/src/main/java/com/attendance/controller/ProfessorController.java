@@ -28,7 +28,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/professor")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${app.base-url}", "http://localhost:8090", "http://localhost:8080"})
 public class ProfessorController {
     
     private final SessionService sessionService;
