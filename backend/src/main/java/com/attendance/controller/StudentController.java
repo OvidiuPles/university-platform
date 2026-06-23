@@ -27,10 +27,11 @@ public class StudentController {
     @PostMapping("/validate/checkin")
     public ResponseEntity<Map<String, String>> validateCheckin(@RequestBody CheckInRequest request) {
         try {
-            attendanceService.validateCheckIn(request);
+            Session session = attendanceService.validateCheckIn(request);
             return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Check-in validated"
+                "message", "Check-in validated",
+                "courseName", session.getCourse().getCourseName()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest()

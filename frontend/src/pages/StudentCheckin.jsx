@@ -12,6 +12,7 @@ export default function StudentCheckin() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formVisible, setFormVisible] = useState(true);
+  const [courseName, setCourseName] = useState(null);
 
   useEffect(() => {
     if (!sessionToken) {
@@ -34,6 +35,8 @@ export default function StudentCheckin() {
         if (data.status === 'error') {
           setMessage({ text: data.message, type: 'error' });
           setFormVisible(false);
+        } else if (data.courseName) {
+          setCourseName(data.courseName);
         }
       })
       .catch(() => {
@@ -101,6 +104,11 @@ export default function StudentCheckin() {
               <p>
                 Check in as <strong>{student?.name}</strong>
               </p>
+              {courseName && (
+                <p>
+                  for <strong>{courseName}</strong>
+                </p>
+              )}
             </div>
 
             <button className="btn full" onClick={submitCheckIn}>
@@ -115,6 +123,11 @@ export default function StudentCheckin() {
               <FaCheckCircle size={64} color="#28a745" />
             </div>
             <h2>Check-In Successful!</h2>
+            {courseName && (
+              <p style={{ marginTop: 15 }}>
+                <strong>{courseName}</strong>
+              </p>
+            )}
             <p style={{ marginTop: 15, color: '#666' }}>
               Your attendance has been recorded.
             </p>
